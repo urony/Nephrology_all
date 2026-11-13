@@ -18,7 +18,7 @@ function folderToMap(dir) {
   return out;
 }
 
-const order = ['core', 'extras', 'widgets', 'data', 'labgen', 'gamesA1', 'gamesA2', 'gamesA3', 'gamesA5', 'gamesA4', 'partB', 'partC', 'teacher', 'main'];
+const order = ['core', 'extras', 'widgets', 'data', 'labgen', 'gamesA1', 'labelgame', 'gamesA2', 'gamesA3', 'gamesA5', 'gamesA4', 'partB', 'partC', 'teacher', 'main'];
 const js = order.map(n => `/* ---- ${n}.js ---- */\n` + read(`src/${n}.js`)).join('\n');
 const css = read('src/styles.css');
 const imgAll = folderToMap('assets'), artAll = folderToMap('art');
@@ -51,7 +51,7 @@ console.log('built dist/index.html', Math.round(full.length / 1024) + ' KB', '| 
 
 /* ===== קבצים נפרדים: dist/parts/part-X.html ו-game-<id>.html (עם תמונות רק של החלק) ===== */
 const shared = ['core', 'extras', 'widgets', 'data', 'main', 'teacher'].map(n => read(`src/${n}.js`)).join('\n').replace(/const FIGX = \{[\s\S]*?\n\};/, '');
-const partFiles = { a: ['gamesA1', 'gamesA2', 'gamesA3', 'gamesA5', 'gamesA4'], b: ['labgen', 'partB'], c: ['labgen', 'partB', 'partC'] };
+const partFiles = { a: ['gamesA1', 'labelgame', 'gamesA2', 'gamesA3', 'gamesA5', 'gamesA4'], b: ['labgen', 'partB'], c: ['labgen', 'partB', 'partC'] };
 const usedBy = p => shared + '\n' + partFiles[p].map(n => read(`src/${n}.js`)).join('\n');
 function pick(map, p, extra) {
   const txt = usedBy(p), out = {};

@@ -34,8 +34,8 @@ const EXP_TXT = {
 function expertKind(pct) { return pct >= 85 ? 'great' : pct >= 60 ? 'good' : 'try'; }
 function expertCard(kindOrPct, text) {
   const kind = typeof kindOrPct === 'number' ? expertKind(kindOrPct) : kindOrPct;
-  const names = EXP_IMG[EXP_G][kind] || EXP_IMG[EXP_G].good, nm = pick(names);
-  if (!ART[nm]) return '';
+  const okn = a => (a || []).filter(x => ART[x]); let names = okn(EXP_IMG[EXP_G][kind]); if (!names.length) names = okn(EXP_IMG[EXP_G].good); const nm = names.length ? pick(names) : null;
+  if (!nm) return '';
   return `<div class="card expert"><img src="${ART[nm]}" alt="המומחה" loading="lazy"><div><b class="small muted">המומחה/ית</b><div class="bubble" style="margin-top:4px">${text || pick(EXP_TXT[kind])}</div></div></div>`;
 }
 
