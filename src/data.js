@@ -73,5 +73,5 @@ const TAGS = {
   filtration: 'סינון בגלומרולוס', fil_vs_reab: 'סינון, ספיגה חוזרת והפרשה', adh: 'ADH ומאזן מים', raas: 'מערכת RAAS', adh_raas: 'ADH ו-RAAS יחד',
   acid_base: 'איזון חומצה-בסיס', epo_vitd: 'EPO וויטמין D', gfr: 'GFR וקריאטינין', aki_ckd: 'אי-ספיקה חריפה מול כרונית', aki_types: 'פרה-רנלי, רנלי, פוסט-רנלי',
   dialysis: 'דיאליזה', transplant: 'השתלת כליה', stones: 'אבני כליה', uti: 'זיהומים בדרכי השתן', drugs: 'תרופות ונזק כלייתי', diet: 'תזונה במחלות כליה',
-  complications: 'סיבוכים סיסטמיים', cause: 'זיהוי הסיבה', treatment: 'בחירת טיפול', urgent: 'זיהוי מצב חירום', next_test: 'בחירת הבדיקה הבאה',
+  complications: 'סיבוכים סיסטמיים', cause: 'זיהוי הסיבה', treatment: 'בחירת טיפול', urgent: 'זיהוי מצב חירום', next_test: 'בחירת הבדיקה הבאה', diag_key: 'זיהוי הממצא המכריע', er_tests: 'בחירת בדיקות בחדר מיון',
 };
