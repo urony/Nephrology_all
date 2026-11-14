@@ -177,7 +177,7 @@ function testHTML(c, p, k) {
 const SHIFTS = {
   s1: { id: 'c_s1', icon: '🌆', title: 'משמרת ערב: חמישה מטופלים', desc: 'חמישה מטופלים: מקרים קלאסיים.', t0: '20:30', ids: ['c1', 'c2', 'c3', 'c4', 'c5'] },
   s2: { id: 'c_s2', icon: '🌃', title: 'משמרת חצות: מקרים מאתגרים (עם תלונה מרכזית)', desc: 'חמישה מטופלים: מקרים מאתגרים, כולל מצב חירום. לשליחה על ידי המורה בלבד.', t0: '01:10', ids: ['c6', 'c7', 'c8', 'c9', 'c10'], teacherOnly: true },
-  s4: { id: 'c_s4', icon: '🔦', title: 'משמרת לילה: בלי תלונה מרכזית', desc: 'כל עשרת המטופלים בסדר אקראי, אבל בלי תלונה מרכזית. חייבים לקחת אנמנזה כדי להבין מה קרה.', t0: '02:30', ids: CASES.map(c => c.id), nocc: true },
+  s4: { id: 'c_s4', icon: '🔦', title: 'משמרת לילה: חמישה מטופלים בלי תלונה מרכזית', desc: 'חמשת המטופלים שלא היו במשמרת הערב, בלי תלונה מרכזית. חייבים לקחת אנמנזה כדי להבין מה קרה.', t0: '02:30', ids: ['c6', 'c7', 'c8', 'c9', 'c10'], nocc: true },
   s3: { id: 'c_s3', icon: '🏆', title: 'מרתון: כל עשרת המטופלים', desc: 'כל עשרת המטופלים בסדר אקראי. משמרת ארוכה, לבעלי כושר!', t0: '08:00', ids: CASES.map(c => c.id) },
 };
 Object.values(SHIFTS).forEach(S => registerGame({
@@ -286,7 +286,7 @@ function teacherShiftView(g, body) {
   render();
 }
 function keyPartC() {
-  let h = `<h2>🚑 חלק ג׳: תורנות מיון (10 מטופלים)</h2><p class="small muted">לכל מטופל: אבחנה (50 נקודות), סיבה (20), טיפול (30). משמרת ערב: ${SHIFTS.s1.ids.length} מטופלים קלאסיים. משמרת לילה: ${SHIFTS.s2.ids.length} מקרים מאתגרים. מרתון: כולם.</p>`;
+  let h = `<h2>🚑 חלק ג׳: תורנות מיון (10 מטופלים)</h2><p class="small muted">לכל מטופל: אבחנה (50 נקודות), סיבה (20), טיפול (30). משמרת ערב: ${SHIFTS.s1.ids.length} מטופלים קלאסיים. משמרת לילה: ${SHIFTS.s4.ids.length} המטופלים האחרים, בלי תלונה מרכזית. מרתון: כולם.</p>`;
   CASES.forEach(c => {
     h += `<div class="card"><h3>${c.emoji} ${c.name}, ${c.sex === 'F' ? 'בת' : 'בן'} ${c.age}${c.urgent ? ' · 🚨 חירום' : ''}</h3><p class="small"><b>תלונה:</b> ${c.cc}</p><p class="small"><b>אבחנה:</b> ${CDX[c.dx].n}</p><p class="small"><b>סיבה:</b> ${c.cause[1].find(o => o.ok).t}</p><p class="small"><b>טיפול:</b> ${c.tx.find(o => o.ok).t}</p><p class="small"><b>בדיקות חיוניות:</b> ${c.must.map(k => TESTS[k].n).join(' · ')}</p><p class="small muted">📌 ${c.teach}${c.note ? `<br>הערה: ${c.note}` : ''}</p></div>`;
   });
