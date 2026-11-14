@@ -350,3 +350,14 @@ svg.chart{direction:ltr}
 .instr{color:var(--ink,#1b2a38);font-weight:700;font-size:1rem;background:#fff8e1;border-inline-start:5px solid var(--gold,#f2b01e);padding:9px 12px;border-radius:10px;margin:0 0 12px}
 .stagebar{margin-bottom:8px;align-items:center}
 .fx{font-weight:800}
+/* גרור את התווית: מצבים והקלדה */
+.lg-dot.num{width:28px;height:28px;font-size:.85rem;animation:none}
+.lg-dot.pick{background:var(--gold);transform:translate(-50%,-50%) scale(1.25)}
+.lg-dot.revealed{background:#d98a1f;box-shadow:0 0 0 2px #d98a1f;animation:none;cursor:default}
+.lg-chip.en{direction:ltr}
+.lg-en{font-weight:600;color:var(--muted)}
+.lg-type{margin:10px 0}
+.lg-type .row{flex-wrap:nowrap;gap:8px}
+.lg-type input{flex:1;min-width:0;font-size:1.05rem;padding:11px 12px}
+.lg-q{margin-bottom:6px;font-weight:700}
+.lg-mode{text-align:start;padding:12px 14px;margin-bottom:8px}
