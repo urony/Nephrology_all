@@ -99,11 +99,12 @@ function litItems(src) {
   return out;
 }
 function collectKey(list) {
-  const names = ['runQuiz', 'mcq', 'orderGame', 'binGame', 'matchGame', 'sortGame', 'predictTable'];
+  const names = ['runStages', 'runQuiz', 'mcq', 'orderGame', 'binGame', 'matchGame', 'sortGame', 'predictTable'];
   const saved = {}; names.forEach(n => saved[n] = window[n]);
   const res = []; let cur = null;
   const dummy = () => document.createElement('div');
   const go = fn => { try { fn(); } catch (e) { } };
+  window.runStages = (root, ctx, stages) => { stages.forEach(st => go(() => st.run(dummy(), () => { }))); };
   window.runQuiz = (root, ctx, items) => { items.forEach(it => cur.q.push(it)); };
   window.mcq = (p, spec) => { cur.q.push(spec); return dummy(); };
   window.orderGame = (r, o) => { cur.o.push(o.steps); go(() => o.onDone && o.onDone(100)); };
