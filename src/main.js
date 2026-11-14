@@ -58,7 +58,7 @@ function home() {
 }
 
 function journeyMap(gs) {
-  const nodes = gs.filter(g => g.id !== 'a_review' && g.id !== 'a_exam'); if (!nodes.length) return '';
+  const nodes = gs.filter(g => g.id !== 'a_review' && g.id !== 'a_exam' && !g.id.startsWith('a_mix')); if (!nodes.length) return '';
   const done = nodes.map(g => Store.stars(g.id) > 0), nowI = done.indexOf(false), nd = done.filter(Boolean).length;
   return `<div class="card journey"><h3 style="margin-top:0">🗺️ מסע הנפרון</h3><p class="small muted" style="margin-top:0">כל משחק הוא תחנה. ${nowI < 0 ? 'סיימתם את כל המסע! 🎉' : `כליון מחכה בתחנה הבאה (${nd} מתוך ${nodes.length} הושלמו).`}</p>
     <div class="jmap">${nodes.map((g, i) => `<button class="jn ${done[i] ? 'done' : ''} ${i === nowI ? 'now' : ''}" data-g="${g.id}" aria-label="${g.title}">${i === nowI && (ART.mascot_happy) ? `<img class="jdemi" src="${ART.mascot_happy}" alt="">` : ''}<span class="jic">${done[i] ? '✅' : g.icon}</span><span class="jt">${g.title.split(':')[0]}</span></button>`).join('')}</div></div>`;
@@ -68,7 +68,7 @@ function partPage(p) {
   let h = `<div class="hero" style="${ART.hero_bg ? heroBg(p === 'A' ? 'rgba(20,96,154,.66),rgba(10,120,130,.5)' : p === 'B' ? 'rgba(15,110,115,.65),rgba(26,90,150,.5)' : 'rgba(110,70,200,.65),rgba(60,40,140,.5)') : 'background:linear-gradient(135deg,' + (p === 'A' ? '#1f78b4,#0d4f80' : p === 'B' ? '#0f9b95,#1a6fa0' : '#7a4fd6,#4b2f9c') + ')'}">${mascot(p === 'C' ? 'think' : 'happy')}<div><h1>חלק ${P.l}: ${P.t}</h1><p>${P.d}</p></div></div>`;
   if (p === 'A') {
     h += `<div class="card soft small">📘 כאן חוזרים בקצרה, בעזרת כלים קטנים ומשחקיים, על עקרונות חשובים באנטומיה, בפיזיולוגיה ובמחלות של הכליה. זה לא תחליף ללימוד, אלא חזרה מהירה וחביבה. אפשר לעבוד לפי הסדר או לדלג בין יחידות.</div>`;
-    h += journeyMap(gs);
+    h += `<div class="card soft small">⭐ <b>מה אומרים הכוכבים?</b> הם הציון הכי גבוה שקיבלתם במשחק: שלושה כוכבים מ-90%, שניים מ-70%, כוכב אחד מ-40%. אפשר לשחק שוב כדי להשיג עוד. בסוף כל נושא יש גם תרגול מעורב.</div>`;
     Object.keys(SECS).forEach(s => { const g = gs.filter(x => x.sec === s); h += `<div class="part"><h2 style="margin:0">${SECS[s][0]}</h2></div><p class="muted small" style="margin-top:0">${SECS[s][1]}</p><div class="grid">${g.map(tile).join('')}</div>`; });
   } else if (p === 'B') {
     h += `<div class="card soft"><b>איך זה עובד?</b> מקבלים תוצאות בדיקות דם ושתן ובוחרים: מה האבחנה? כל רמה קשה יותר מקודמתה.</div><div class="grid">${gs.map(tile).join('')}</div>
