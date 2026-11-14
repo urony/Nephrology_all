@@ -2,6 +2,16 @@
 /* ===== חלק א׳ – יחידות 5–9: סינון, סינון/ספיגה/הפרשה, ADH, RAAS, ADH ו-RAAS יחד ===== */
 
 /* ---------- 5. סינון בגלומרולוס ---------- */
+/* סימולטור הסינון המלא של אורי (קובץ עצמאי) מוטמע בתוך מסגרת, עם גובה אוטומטי */
+function gfrLabStage(box, done) {
+  const host = el('<div class="card" style="padding:8px"></div>'); box.appendChild(host);
+  host.innerHTML = '<p class="instr">מעבדת הפקעית: שנו את קוטר העורקיקים, את הלחץ האונקוטי ואת הלחץ בקופסית באומן, וראו מה קורה לקצב הסינון (GFR) ולזרימת הפלזמה. יש גם מסלול מודרך עם שאלות.</p>';
+  const fr = document.createElement('iframe'); fr.className = 'gfr-frame'; fr.title = 'מעבדת הפקעית: סימולטור סינון גלומרולרי'; fr.setAttribute('scrolling', 'no'); fr.srcdoc = GFR_LAB; host.appendChild(fr);
+  const fit = () => { try { const d = fr.contentDocument; if (d && d.documentElement) fr.style.height = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight) + 'px'; } catch (e) { } };
+  fr.onload = () => { fit(); try { new ResizeObserver(fit).observe(fr.contentDocument.body); } catch (e) { setInterval(fit, 700); } };
+  const go = el('<button class="btn primary block" style="margin-top:10px">המשך לשאלות ←</button>'); host.appendChild(go); go.onclick = () => done(null);
+}
+
 function filterSim(box, done) {
   const S = { pg: 55, pc: 15, pi: 30 };
   const host = el('<div class="card"></div>'); box.appendChild(host);
@@ -40,7 +50,7 @@ registerGame({
         { t: 'אוריאה', e: '🧪', b: 0, why: 'פסולת קטנה שעוברת בסינון.' }, { t: 'קריאטינין', e: '💪', b: 0, why: 'מולקולה קטנה, מסוננת חופשית.' },
         { t: 'אלבומין (חלבון פלזמה)', e: '🥚', b: 1, why: 'גדול מדי, ולכן לא עובר דרך קרום הסינון בכליה בריאה.' }, { t: 'תא דם אדום', e: '🔴', b: 1, why: 'גדול מדי בהרבה, נשאר בדם.' }, { t: 'תא דם לבן', e: '⚪', b: 1, why: 'גדול מדי, נשאר בדם.' }, { t: 'טסית', e: '🩹', b: 1, why: 'גדולה מדי, נשארת בדם.' },
       ], onDone: done }) },
-      { title: 'לחצי הסינון', run: filterSim },
+      { title: 'מעבדת הפקעית', run: gfrLabStage },
       { title: 'מנבאים', run: runQuizStage([
         Q('אחרי דימום חמור לחץ הדם בגלומרולוס יורד. מה קורה לסינון?', 'filtration', [OK('הסינון יורד, כי הלחץ שדוחף נוזל החוצה קטן', 'פחות לחץ דוחף = פחות סינון. לכן דימום וירידה בלחץ הדם עלולים לפגוע בכליה.'), NO('הסינון עולה, כי הכליה מנסה להחזיר איזון', 'הכליה לא מגבירה סינון כשהלחץ יורד.'), NO('אין שינוי, כי הסינון אינו תלוי בלחץ', 'הסינון תלוי בלחצים.'), NO('הסינון עובר לקופסית באומן ואינו נפגע', 'הלחץ הוא התנאי לסינון בכל החלקים.')]),
         Q('אבן חוסמת את השופכן ועולה הלחץ בקופסית באומן. מה קורה לסינון?', 'aki_types', [OK('יורד, כי הלחץ בקופסית מתנגד לסינון', 'חסימה אחרי הכליה (פוסט-רנלית) מעלה את הלחץ בצינוריות ובקופסית ומפחיתה סינון.'), NO('עולה, כי יש יותר נוזל בקופסית שמסייע לסינון', 'יותר לחץ בקופסית מתנגד לסינון.'), NO('אינו משתנה, כי החסימה רחוקה מהגלומרולוס', 'החסימה מעלה לחץ לאחור עד לקופסית.'), NO('נעצר לגמרי רק אם החסימה בשתי הכליות', 'גם בכליה אחת הסינון באותה כליה יורד.')]),

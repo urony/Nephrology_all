@@ -377,3 +377,4 @@ svg.chart{direction:ltr}
 .pg-opt{text-align:start}
 .pg-opt.no{opacity:.55}
 .pg-svg{direction:ltr;unicode-bidi:isolate}
+.gfr-frame{width:100%;border:0;display:block;min-height:600px;border-radius:12px;background:#f2f7fb}
