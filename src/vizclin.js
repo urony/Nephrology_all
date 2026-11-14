@@ -1,6 +1,13 @@
 'use strict';
 /* ===== איורים סכמטיים לחלקים ב׳ ו-ג׳: אולטרסאונד כליות ואק"ג ===== */
+/* תמונות אולטרסאונד סכמטיות-ריאליסטיות (art/us_*); אם חסרות, חוזרים לסכמה הישנה */
+function usImg(src, cap) { return `<figure class="fig" style="margin:6px 0"><img class="zoomable" loading="lazy" src="${src}" alt="${esc(cap)}" style="width:100%;border-radius:12px;background:#000"><figcaption class="small muted" style="text-align:center">${esc(cap)} · לחיצה להגדלה</figcaption></figure>`; }
 function usSvg(kind) {
+  const M = { normal: [['us_normal', 'כליה תקינה']], small: [['us_atrophic', 'כליה מצומקת וקטנה, בהירה, ליד כבד גדול להשוואה']], hydro: [['us_hydro', 'הרחבת האגן והכוסיות (הידרונפרוזיס): הנוזל נראה שחור'], ['us_bladder_prostate', 'שלפוחית מלאה (שחורה) וערמונית מוגדלת מתחתיה']], stone: [['us_hydro_mild', 'הרחבה קלה של האגן בצד אחד'], ['us_stone', 'לדוגמה: אבן נראית כנקודה לבנה בהירה עם צל כהה מתחתיה']] }[kind];
+  if (M && M.every(m => ART[m[0]])) return M.map(m => usImg(ART[m[0]], m[1])).join('');
+  return usSvgOld(kind);
+}
+function usSvgOld(kind) {
   const kid = (cx, sc, col, pelvis, dark) => `<g transform="translate(${cx},70) scale(${sc})">
       <path d="M-26 -42 C-48 -38 -52 8 -40 34 C-30 56 8 56 20 34 C34 8 26 -40 -26 -42 Z" fill="${col}" stroke="${dark}" stroke-width="2.2"/>
       <ellipse cx="-4" cy="0" rx="${pelvis.rx}" ry="${pelvis.ry}" fill="${pelvis.fill}" stroke="${pelvis.stroke}" stroke-width="1.6"/></g>`;

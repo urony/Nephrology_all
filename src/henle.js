@@ -25,6 +25,15 @@ function henleSvg(S) {
     <text x="180" y="290" class="av-s" style="font-weight:800">שתן: ${urOsm} mOsm/L</text>
   </svg>`;
 }
+/* סימולטור מכפיל הזרם הנגדי של אורי (קובץ עצמאי) מוטמע במסגרת, עם גובה אוטומטי. כולל תרגול משלו */
+function henleLabStage(box, done) {
+  const host = el('<div class="card" style="padding:8px"></div>'); box.appendChild(host);
+  host.innerHTML = '<p class="instr">מכפיל הזרם הנגדי: גלו איך נוצר מפל הריכוזים בלשד הכליה, נסו את הפקדים, ותרגלו את מה שלמדתם בסימולטור עצמו.</p>';
+  const fr = document.createElement('iframe'); fr.className = 'gfr-frame'; fr.title = 'סימולטור מכפיל הזרם הנגדי בלולאת הנלה'; fr.setAttribute('scrolling', 'no'); fr.srcdoc = HENLE_LAB; host.appendChild(fr);
+  const fit = () => { try { const d = fr.contentDocument; if (d && d.documentElement) fr.style.height = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight) + 'px'; } catch (e) { } };
+  fr.onload = () => { fit(); try { new ResizeObserver(fit).observe(fr.contentDocument.body); } catch (e) { setInterval(fit, 700); } };
+  const go = el('<button class="btn primary block" style="margin-top:10px">המשך להתאמה ושאלות ←</button>'); host.appendChild(go); go.onclick = () => done(null);
+}
 function henleSim(box, done) {
   const S = { adh: true, diu: false }, seen = new Set();
   const host = el('<div class="card"></div>'); box.appendChild(host);
@@ -57,6 +66,7 @@ registerGame({
     root.insertAdjacentHTML('afterbegin', say('הלולאה היא חלק בנפרון שכולם מתבלבלים בו: למה הנוזל יורד, מסתובב ועולה? בואו נראה.', 'think'));
     runStages(root, ctx, [
       { title: 'הלולאה בפעולה', run: henleSim },
+      { title: 'מכפיל הזרם הנגדי', run: henleLabStage },
       { title: 'התאמה', run: (box, done) => matchGame(box, { tag: 'henle', leftTitle: 'חלק', rightTitle: 'תכונה', pairs: [
         ['זרוע יורדת', 'חדירה למים, והם יוצאים אל הלשד'], ['זרוע עולה', 'אטומה למים, ומוציאה מלחים'], ['לשד כלייתי', 'מלוח יותר ככל שיורדים לעומק'], ['צינור מאסף', 'מים יוצאים ממנו רק בנוכחות ADH'],
       ], onDone: done }) },

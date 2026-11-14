@@ -36,7 +36,7 @@ function nameCard(redraw) {
 }
 function bindName(redraw) { const sv = $('#sv'); if (sv) sv.onclick = () => { const n = $('#nm').value.trim(); if (!n) { toast('כתבו שם או כינוי'); return; } Store.setName(n, $('#cl').value); redraw(); }; }
 function partProgress(p) { const g = gamesOfPart(p); const d = g.filter(x => Store.stars(x.id) > 0).length; return { d, n: g.length, pct: g.length ? Math.round(100 * d / g.length) : 0 }; }
-function tile(g) { return `<button class="tile" data-g="${g.id}">${starsHTML(Store.stars(g.id))}<span class="ic">${g.icon}</span><span class="t">${g.title}</span><span class="d">${g.desc}</span></button>`; }
+function tile(g) { const done = Store.stars(g.id) > 0; return `<button class="tile${done ? ' done' : ''}" data-g="${g.id}">${done ? '<span class="chk" aria-label="הושלם">✓</span>' : ''}${starsHTML(Store.stars(g.id))}<span class="ic">${g.icon}</span><span class="t">${g.title}</span><span class="d">${g.desc}</span></button>`; }
 
 function heroBg(g) { return ART.hero_bg ? `background:linear-gradient(135deg,${g}),url(${ART.hero_bg}) center/cover` : ''; }
 function home() {

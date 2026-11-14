@@ -83,7 +83,7 @@ function lightbox(src) {
   const lb = el(`<div class="lightbox"><button class="btn x">✕ סגירה</button><img src="${src}" alt=""></div>`);
   lb.addEventListener('click', () => lb.remove()); document.body.appendChild(lb);
 }
-document.addEventListener('click', e => { const im = e.target.closest('.fig img'); if (im) lightbox(im.src); });
+document.addEventListener('click', e => { const im = e.target.closest('.fig img, img.avatar, img.zoomable'); if (im) lightbox(im.src); });
 
 /* תוויות עבריות מעל/מתחת לאיורים חדשים: x,y באחוזים; row = שורת עמודות מתחת; legend = רשימה ממוספרת */
 const FIGX = {};
@@ -215,7 +215,7 @@ function makeCtx(game, root) {
       const msg = pct >= 90 ? ['מושלם! אתם מדהימים 🎉', 'wow'] : pct >= 70 ? ['כל הכבוד – ממש מצוין!', 'happy'] : pct >= 40 ? ['יפה! עוד סיבוב ותהיו שם.', 'wink'] : ['לא נורא – טעויות הן הדרך ללמוד. נסו שוב!', 'think'];
       if (pct >= 70) { confetti(); Snd.play('win'); } else Snd.play('no');
       root.innerHTML = `<div class="card victory">${mascot(msg[1], 'hero-m')}<h2>${pct}%</h2><div style="font-size:1.8rem;color:var(--gold)">${'★'.repeat(st)}${'☆'.repeat(3 - st)}</div><p>${msg[0]}</p><div class="muted small">שיא אישי: ${rec.best}% · ניסיונות: ${rec.attempts}</div></div>${extra}
-      ${IS_TEACHER ? '' : expertCard(pct)}${!IS_TEACHER ? `<button class="btn block" data-act="cert" style="margin-top:8px">🎓 ${pct >= 70 ? 'תעודת הצטיינות' : 'תעודת השתתפות'}</button>` : ''}
+      ${IS_TEACHER ? '' : expertCard(pct)}${!IS_TEACHER ? `<button class="btn block certbtn" data-act="cert" style="margin-top:8px">🎓 ${pct >= 70 ? 'לחצו להפקת תעודת הצטיינות' : 'לחצו להפקת תעודת השתתפות'}</button>` : ''}
       ${game.learned && game.learned.length ? `<div class="card learned"><h3>📚 מה למדנו</h3><ul>${game.learned.map(x => `<li>${x}</li>`).join('')}</ul></div>` : ''}
       <div class="row" style="margin-top:6px"><button class="btn primary grow" data-act="again">🔁 שוב</button><button class="btn grow" data-act="back">חזרה לרשימה</button></div>`;
       $('.hero-m', root) && ($('.hero-m', root).style.cssText = 'width:110px;margin:0 auto 8px');

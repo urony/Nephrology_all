@@ -20,7 +20,8 @@ function folderToMap(dir) {
 
 const order = ['core', 'extras', 'widgets', 'pathgame', 'vizadh', 'vizdialysis', 'vizaki', 'vizbody', 'vizclin', 'data', 'labgen', 'gamesA1', 'labelgame', 'henle', 'diuretics', 'gamesA2', 'gamesA3', 'gamesA5', 'gamesA4', 'partB', 'partC', 'teacher', 'main'];
 const gfrLab = 'const GFR_LAB=' + JSON.stringify(read('embed/glomerular_filtration_lab.html')).split('</').join('<\\/') + ';\n';
-const js = gfrLab + order.map(n => `/* ---- ${n}.js ---- */\n` + read(`src/${n}.js`)).join('\n');
+const henleLab = 'const HENLE_LAB=' + JSON.stringify(read('embed/loop_of_henle_simulation.html')).split('</').join('<\\/') + ';\n';
+const js = gfrLab + henleLab + order.map(n => `/* ---- ${n}.js ---- */\n` + read(`src/${n}.js`)).join('\n');
 const css = read('src/styles.css');
 const imgAll = folderToMap('assets'), artAll = folderToMap('art');
 
@@ -53,7 +54,7 @@ console.log('built dist/index.html', Math.round(full.length / 1024) + ' KB', '| 
 /* ===== קבצים נפרדים: dist/parts/part-X.html ו-game-<id>.html (עם תמונות רק של החלק) ===== */
 const shared = ['core', 'extras', 'widgets', 'data', 'main', 'teacher'].map(n => read(`src/${n}.js`)).join('\n').replace(/const FIGX = \{[\s\S]*?\n\};/, '');
 const partFiles = { a: ['pathgame', 'vizadh', 'vizdialysis', 'vizaki', 'vizbody', 'gamesA1', 'labelgame', 'henle', 'diuretics', 'gamesA2', 'gamesA3', 'gamesA5', 'gamesA4'], b: ['vizaki', 'vizclin', 'labgen', 'partB'], c: ['vizaki', 'vizclin', 'labgen', 'partB', 'partC'] };
-const usedBy = p => (p === 'a' ? gfrLab : '') + shared + '\n' + partFiles[p].map(n => read(`src/${n}.js`)).join('\n');
+const usedBy = p => (p === 'a' ? gfrLab + henleLab : '') + shared + '\n' + partFiles[p].map(n => read(`src/${n}.js`)).join('\n');
 function pick(map, p, extra) {
   const txt = usedBy(p), out = {};
   for (const k of Object.keys(map)) if (txt.includes(`'${k}'`) || txt.includes(`"${k}"`) || extra(k)) out[k] = map[k];

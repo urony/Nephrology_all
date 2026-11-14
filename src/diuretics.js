@@ -24,6 +24,14 @@ function diuSvg(D) {
     ${hit('asc') ? '<text x="200" y="160" font-size="22" text-anchor="middle">✖</text>' : hit('dct') ? '<text x="242" y="110" font-size="22" text-anchor="middle">✖</text>' : hit('cd') ? '<text x="300" y="160" font-size="22" text-anchor="middle">✖</text>' : ''}
   </svg>`;
 }
+/* איור אמיתי (art/diur_*) עם הדגשת הקטע שבו המשתן פועל; אם חסר, הסכמה הישנה */
+const DIU_ART = { asc: 'diur_loop', dct: 'diur_dct', cd: 'diur_cd' };
+function diuPic(D) {
+  const k = D && DIU_ART[D.seg];
+  if (k && ART[k]) return `<figure class="fig" style="margin:0"><img class="zoomable" src="${ART[k]}" alt="${D.site}" style="width:100%;max-width:340px;display:block;margin:0 auto;border-radius:14px"><figcaption class="small muted" style="text-align:center">הקטע המודגש: ${D.site} · לחיצה להגדלה</figcaption></figure>`;
+  if (!D && ART.nephron_real) return `<figure class="fig" style="margin:0"><img class="zoomable" src="${ART.nephron_real}" alt="נפרון" style="width:100%;max-width:300px;display:block;margin:0 auto;border-radius:14px;opacity:.9"></figure>`;
+  return diuSvg(D);
+}
 function diuSim(box, done) {
   let cur = -1; const seen = new Set();
   const host = el('<div class="card"></div>'); box.appendChild(host);
@@ -31,10 +39,10 @@ function diuSim(box, done) {
     const D = DIU[cur];
     host.innerHTML = `<p class="instr">בחרו משתן וראו איפה בנפרון הוא פועל ומה קורה בגוף.</p>
       <div class="col" style="gap:6px;margin-bottom:8px">${DIU.map((d, i) => `<button class="btn block ${cur === i ? 'primary' : ''}" data-s="${i}" style="text-align:start">${d.t}</button>`).join('')}</div>
-      ${diuSvg(D)}
+      ${diuPic(D)}
       ${D ? `<div class="pg-info"><b>${D.t}</b><div>${D.how}</div></div>
       <div class="pg-conc" style="margin:8px 0"><span class="small">כמות השתן</span><div class="bar"><i style="width:${D.pv}%;background:${D.pill}"></i></div><b class="small">${D.power}</b></div>
-      <div class="out"><div><b style="font-size:.95rem">${D.kal}</b><span>אשלגן</span></div><div><b style="font-size:.95rem">${D.use}</b><span>למי מתאים</span></div></div>` : '<div class="explain">בחרו משתן מהרשימה.</div>'}
+      <div class="diu-facts"><div class="fact"><span class="fl">🧂 מה קורה לרמת האשלגן בדם?</span><b>${D.kal}</b></div><div class="fact"><span class="fl">👥 למי התרופה מתאימה?</span><b>${D.use}</b></div></div>` : '<div class="explain">בחרו משתן מהרשימה.</div>'}
       <button class="btn primary block" id="dgo" style="margin-top:12px" ${seen.size < 3 ? 'disabled' : ''}>${seen.size < 3 ? `נסו את כל שלושת הסוגים (${seen.size} מתוך 3)` : 'המשך ←'}</button>`;
     $$('[data-s]', host).forEach(b => b.onclick = () => { cur = +b.dataset.s; seen.add(cur); draw(); });
     $('#dgo', host).onclick = () => done(null);
@@ -54,10 +62,10 @@ registerGame({
     runStages(root, ctx, [
       { title: 'איפה זה פועל?', run: diuSim },
       { title: 'התאמה', run: (box, done) => matchGame(box, { tag: 'diuretics', leftTitle: 'סוג התרופה', rightTitle: 'איפה ומה היא עושה', pairs: [
-        ['משתני לולאה (פוסיד)', 'זרוע עולה של לולאת הנלה: הכי חזקים'],
+        ['משתני לולאה (פוסיד)', 'הזרוע העולה בלשד: ההשפעה החזקה ביותר'],
         ['משתני תיאזיד', 'אבובית מרוחקת: השפעה בינונית'],
-        ['משתנים אוגרי אשלגן', 'צינור מאסף: האשלגן נשאר בגוף'],
-        ['ירידה באשלגן בדם', 'תופעת לוואי של משתני לולאה או תיאזיד'],
+        ['משתנים אוגרי אשלגן', 'צינור מאסף: השפעה חלשה, בלי איבוד מינרל חשוב ללב'],
+        ['ירידה באשלגן בדם', 'תופעת לוואי של שתי הקבוצות הראשונות (ולא של האחרונה)'],
       ], onDone: done }) },
       { title: 'שאלות', run: runQuizStage([
         Q('איפה פועלים משתני לולאה (כמו פוסיד)?', 'diuretics', [OK('בזרוע העולה של לולאת הנלה, וחוסמים העברת מלחים', 'שם המלחים יוצאים מהנוזל ויוצרים את מפל הריכוזים בלשד. בלי זה המים לא נספגים.'), NO('באבובית המקורבת, וחוסמים ספיגה של גלוקוז', 'משתני לולאה אינם פועלים באבובית המקורבת.'), NO('בצינור המאסף, וחוסמים את הפעולה של אלדוסטרון', 'זה המקום של משתנים אוגרי אשלגן.'), NO('בגלומרולוס, וחוסמים את סינון הדם בפקעית', 'המשתנים אינם עוצרים את הסינון, אלא את הספיגה החוזרת.')]),

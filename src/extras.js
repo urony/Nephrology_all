@@ -145,13 +145,14 @@ function gameSize(g) {
 }
 const fmtT = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 function attachComp(ctx, g, hdr) {
+  let pen = 0; ctx.penalty = sec => { pen += sec; };
   const t0 = Date.now(), target = gameSize(g) * (g.part === 'C' ? 110 : 60);
   const pill = el('<span class="chip" style="margin-inline-start:auto">⏱ 00:00</span>'); hdr.querySelector('.row').appendChild(pill);
-  const iv = setInterval(() => { if (!document.body.contains(pill)) { clearInterval(iv); return; } pill.textContent = '⏱ ' + fmtT(Math.round((Date.now() - t0) / 1000)); }, 500);
+  const iv = setInterval(() => { if (!document.body.contains(pill)) { clearInterval(iv); return; } pill.textContent = '⏱ ' + fmtT(Math.round((Date.now() - t0) / 1000) + pen); }, 500);
   const orig = ctx.finish; ctx.comp = true;
   ctx.finish = (pct, extra = '') => {
     clearInterval(iv); pill.remove();
-    const secs = Math.round((Date.now() - t0) / 1000), bonus = pct >= 40 ? Math.max(0, Math.round((target - secs) * 1.5)) : 0, pts = Math.round(pct * 10) + bonus;
+    const secs = Math.round((Date.now() - t0) / 1000) + pen, bonus = pct >= 40 ? Math.max(0, Math.round((target - secs) * 1.5)) : 0, pts = Math.round(pct * 10) + bonus;
     const list = Comp.add(g.id, { pts, secs, pct, n: Store.d.name || 'אני', d: Date.now() });
     const card = `<div class="card"><h3>⏱️ מצב תחרות</h3><div class="kpi"><div><b>${fmtT(secs)}</b><span>זמן</span></div><div><b>+${bonus}</b><span>בונוס מהירות</span></div><div><b>${pts}</b><span>נקודות</span></div></div>
       <p class="small muted" style="margin:10px 0 4px"><b>הדירוג שלך במכשיר הזה:</b></p>${list.map((r, i) => `<div class="row sp small" style="margin:3px 0"><span>${i + 1}. ${esc(r.n)} · ${fmtT(r.secs)}</span><b>${r.pts}</b></div>`).join('')}</div>`;

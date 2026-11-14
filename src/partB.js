@@ -62,9 +62,22 @@ function feedbackDxB(p, chosen) {
   h += `<br><b>מה מצביע על כך כאן:</b></div>${AKI_MAP[p.type] ? `<div class="card flat" style="margin-top:8px;padding:8px"><div class="small muted" style="text-align:center">איפה הבעיה?</div>${akiSvg(AKI_MAP[p.type])}</div>` : ''}<div class="card flat" style="padding:10px;margin-top:8px">${(resetLabNote(), labRows(info.key, p.vals, p.sex, info.key))}<ul style="padding-inline-start:20px;margin:10px 0 0">${info.pts.map(x => `<li>${x}</li>`).join('')}</ul></div>`;
   return h;
 }
+/* למה זה הממצא המכריע: מוצג כהסבר אחרי התשובה הנכונה, כדי ללמד את דרך החשיבה */
+const KEYWHY = {
+  prerenal: 'שתן מרוכז: הכליה בריאה ומנסה לשמור מים, כי הגוף מיובש או שמגיע אליה מעט דם. כליות תקינות בגודלן וללא הרחבת אגנים: אין חסימה (לא פוסט-רנלי) ואין נזק מבני.',
+  renal_aki: 'שתן לא מרוכז: האבוביות הפגועות לא מצליחות לרכז את השתן. כליות תקינות בגודלן: אין חסימה, והן לא הספיקו להתכווץ. בלי אנמיה: אנמיה מתפתחת לאורך זמן (חוסר EPO), והפגיעה כאן חדה.',
+  postrenal: 'השתן לא מצליח לצאת, ולכן הוא נלחץ אחורה ומרחיב את האגנים (הידרונפרוזיס). זה הממצא היחיד שמבדיל חסימה מפגיעה במקום אחר.',
+  ckd: 'כליות מצומקות: נזק ממושך שהפך את הרקמה לצלקת. אנמיה: חסר EPO. סידן נמוך ו-PTH גבוה: חסר ויטמין D פעיל. כל אלה מצטברים רק לאורך זמן, ולכן הם סימן לכרוניות.',
+  diabetic: 'גלוקוז גבוה פוגע בגלומרולוס, והחלבון בשתן הוא סימן לנזק. קצב הסינון עדיין כמעט תקין, ולכן זה נזק מוקדם: הכליות עוד מתפקדות.',
+  cystitis: 'ניטריט חיובי וכדוריות דם לבנות בשתן מעידים על חיידקים. ספירת דם לבנה ו-CRP תקינות מראות שהדלקת נשארה בשלפוחית ולא פגעה בכל הגוף.',
+  pyelo: 'שתן מזוהם (ניטריט) מעיד על זיהום. ספירת דם לבנה ו-CRP גבוהות מעידות שהדלקת מערבת את הכליה וגורמת לתגובה בכל הגוף, וזה מה שמבדיל מדלקת שלפוחית פשוטה.',
+  stone: 'דם בשתן ללא ניטריט: אין זיהום, אלא גירוי מכני. אבן בשופכן באולטרסאונד מסבירה את הדם ואת ההרחבה הקלה של האגן.',
+  di: 'נתרן גבוה: הגוף מאבד מים בלי מלח. שתן מדולל מאוד בנפח גדול: הצינור המאסף לא מקבל אות ADH ולכן לא סופג מים.',
+  dial: 'דיאליזה מחליפה את תפקוד הכליה. כשהיא מוחמצת, נוזלים, אשלגן ואוריאה מצטברים: בצקת ריאות, אשלגן גבוה עם שינויים בא.ק.ג וחמצת.',
+};
 function keyFindQ(p) {
   const others = shuffle(NTYPES.filter(k => k !== p.type && !KEYF[k].ok(p))).slice(0, 3);
-  return { q: 'איזה ממצא הכריע לטובת האבחנה?', tag: 'diag_key', options: [{ t: KEYF[p.type].t, ok: true }].concat(others.map(k => ({ t: KEYF[k].t, ok: false, why: `זה הממצא האופייני ל${NT[k].s}, ולא מה שרואים כאן.` }))) };
+  return { q: 'איזה ממצא הכריע לטובת האבחנה?', tag: 'diag_key', options: [{ t: KEYF[p.type].t, ok: true, why: KEYWHY[p.type] }].concat(others.map(k => ({ t: KEYF[k].t, ok: false, why: `זה הממצא האופייני ל${NT[k].s}, ולא מה שרואים כאן.` }))) };
 }
 
 /* מריץ סבב מטופלים: mode 1|2|3 */
@@ -83,13 +96,17 @@ function runLabRounds(root, ctx, mode, types) {
     const answeredN = scores.filter(x => x != null).length;
     const head = el(`<div><div class="row sp small muted"><span>מטופל ${i + 1} מתוך ${types.length}</span><span>⭐ ${Math.round(sumScore() * 10) / 10}</span></div><div class="bar" style="margin:8px 0"><i style="width:${100 * answeredN / types.length}%"></i></div></div>`);
     head.appendChild(jumpBar(types.length, i, scores.map(x => x != null), j => { i = j; patientRound(); window.scrollTo(0, 0); }));
-    const who = el(`<div class="card"><div class="patient-head"><div class="avatar">${p.sex === 'F' ? '👩' : '👨'}</div><div><h3 style="margin:0">תוצאות בדיקות</h3><div class="muted">${patientLineB(p)}</div></div></div></div>`);
+    const hide2 = mode === 2 && !IS_TEACHER && !p.hinted;
+    const who = el(`<div class="card"><div class="patient-head"><div class="avatar">${p.sex === 'F' ? '👩' : '👨'}</div><div><h3 style="margin:0">תוצאות בדיקות</h3><div class="muted">${p.sex === 'F' ? 'בת' : 'בן'} ${p.age}</div></div></div>
+      <div id="ccbox">${hide2 ? '<button class="btn teal block" id="hintbtn" style="margin-top:10px">🗣️ בקשו אנמנזה (רמז: מוריד 10% מניקוד המטופל, ו-20 שניות בתחרות)</button>' : `<div class="cc"><span class="cct">תלונה מרכזית</span>${p.complaint}</div>`}</div></div>`);
     host.append(head, who);
     if (IS_TEACHER) who.insertAdjacentHTML('beforeend', `<div class="tnote"><b>מפתח:</b> ${NT[type].n}. ${INFO[type].pts[0]}</div>`);
+    const hb = $('#hintbtn', who); if (hb) hb.onclick = () => { p.hinted = true; if (ctx.penalty) ctx.penalty(20); $('#ccbox', who).innerHTML = `<div class="cc"><span class="cct">תלונה מרכזית (נלקחה אנמנזה)</span>${p.complaint}</div>`; };
     const labs = el('<div></div>'); host.appendChild(labs);
     const q = el('<div class="card"></div>'); host.appendChild(q);
     const fb = el('<div></div>'); host.appendChild(fb);
     const finish = pts => {
+      if (p.hinted) pts = Math.max(0, pts - .1);
       if (scores[i] == null) scores[i] = pts;
       const left = types.map((_, k) => k).filter(k => scores[k] == null), nxt = left.find(k => k > i), last = left.length === 0;
       const sm = el(`<div class="card" style="margin-top:12px"><div class="row sp"><b>${pts >= .999 ? 'מטופל מושלם! 🌟' : 'סיימתם את המטופל'}</b><span>${Math.round(pts * 100)}%</span></div>${pts >= .999 ? expertCard('great') : ''}<button class="btn primary block" id="nx" style="margin-top:10px">${last ? 'לסיכום 🏁' : 'המטופל הבא ←'}</button></div>`);
@@ -115,7 +132,7 @@ function runLabRounds(root, ctx, mode, types) {
         onDone: () => { const box = el('<div style="margin-top:14px"></div>'); q.appendChild(box); dxStep(box, 'שלב 2: מהי האבחנה?', .7, .3, 0); } });
     } else if (mode === 2) {
       labs.innerHTML = allPanels(p);
-      q.insertAdjacentHTML('afterbegin', '<div class="explain" style="margin-bottom:12px">⚠️ רמת קושי מתקדמת: הערכים קרובים לגבולות. קראו את כל הדפוס ואל תסתמכו על מדד אחד: לעיתים השתן או האולטרסאונד הם שמכריעים.</div>');
+      q.insertAdjacentHTML('afterbegin', '<div class="explain" style="margin-bottom:12px">⚠️ רמת קושי מתקדמת: הערכים קרובים לגבולות, והתלונה מוסתרת. אפשר לאבחן מהבדיקות בלבד. מי שמבקש אנמנזה מאבד 10% מניקוד המטופל (ו-20 שניות בתחרות). קראו את כל הדפוס ואל תסתמכו על מדד אחד.</div>');
       dxStep(q, 'מהי האבחנה?', .7, .3, 0);
     } else {
       resetLabNote(); labs.innerHTML = chemCard(p, 'basic');
@@ -146,7 +163,7 @@ registerGame({ id: 'b_l2', part: 'B', learned: [
     'פרה-רנלי מול רנלי: שתן מרוכז מצביע על פרה-רנלי, שתן לא מרוכז על נזק לאבוביות.',
     'דלקת בשלפוחית מול דלקת באגן הכליה: ספירת דם לבנה ו-CRP גבוהות מצביעות על מעורבות הכליה.',
   ], icon: '⚖️', title: 'רמה 2: ערכים בגבולות', desc: 'דפוסים גבוליים וקשים יותר. 8 מטופלים.',
-  teacherNote: 'ערכי קצה: eGFR מעט מתחת ל-60, משקל סגולי בין 1.020 ל-1.025, ספירת דם לבנה על הגבול. תמיד יש ממצא אחד שמכריע (שתן, אולטרסאונד או CRP).',
+  teacherNote: 'התלונה המרכזית מוסתרת ברמה הזו: התלמיד מאבחן מהבדיקות, ואפשר לבקש אנמנזה כרמז בעלות של 10% מניקוד המטופל (ו-20 שניות במצב תחרות). ערכי קצה: eGFR מעט מתחת ל-60, משקל סגולי בין 1.020 ל-1.025, ספירת דם לבנה על הגבול. תמיד יש ממצא אחד שמכריע (שתן, אולטרסאונד או CRP).',
   mount(root, ctx) { root.insertAdjacentHTML('afterbegin', say('עכשיו זה לא כל כך ברור… הערכים בגבול. קראו את כל הדפוס ואל תסתמכו על מדד אחד.', 'wink')); runLabRounds(root, ctx, 2, labTypes(8)); } });
 registerGame({ id: 'b_l3', part: 'B', learned: [
     'רופא טוב לא מזמין הכול: הוא בוחר את הבדיקה שמקדמת את האבחנה לפי התלונה והבדיקות הראשונות.',

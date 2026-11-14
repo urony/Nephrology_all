@@ -20,9 +20,9 @@ function teacherPage(root) {
   const topMis = Object.entries(mis).sort((a, b) => b[1] - a[1]).slice(0, 8);
   const perGame = allG.map(id => { const v = rows.map(r => r.g[id] ? r.g[id][0] : null).filter(x => x != null); return { id, n: v.length, avg: v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null }; });
   const gameRow = g => `<div class="row sp" style="gap:8px;padding:8px 0;border-top:1px solid var(--line)"><div class="row" style="gap:10px;flex:1;min-width:0"><span style="font-size:1.6rem">${g.icon}</span><div style="min-width:0"><b>${g.title}</b><div class="muted small">${g.desc}</div></div></div><button class="btn sm primary" data-g="${g.id}">👁️ תשובות</button></div>`;
-  const partCard = p => `<div class="card"><h2>${PART_ICON[p]} חלק ${PARTS[p].l}: ${PARTS[p].t}</h2>${GAMES.filter(g => g.part === p).map(gameRow).join('')}</div>`;
+  const partCard = p => { const gs = GAMES.filter(g => g.part === p); return `<details class="card tpart"><summary><span>${PART_ICON[p]} חלק ${PARTS[p].l}: ${PARTS[p].t}</span><span class="pill">${gs.length} משחקים</span></summary><div style="margin-top:8px">${gs.map(gameRow).join('')}</div></details>`; };
   root.innerHTML = `<h1>🎓 דף מורה</h1>
-    ${say('כל התשובות כאן פתוחות מראש: בוחרים משחק ורואים את הפתרון המלא, בלי ללחוץ על כלום. במטופלים עוברים בין 1, 2, 3 וכן הלאה.', 'happy')}
+    ${say('כל חלק (א׳, ב׳, ג׳) סגור בהתחלה כדי שלא תצטרכו לגלול. לוחצים על חלק כדי לראות את המשחקים שלו, ועל "תשובות" כדי לראות את הפתרון המלא. הקישורים לתלמידים נמצאים מתחת.', 'happy')}
     <div class="card" style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn primary grow" href="#/key">📋 מפתח תשובות מלא (להדפסה)</a><a class="btn grow" href="#results">📥 תוצאות תלמידים</a><a class="btn grow" href="#/certs">🎓 מחולל תעודות</a></div>
     ${activeParts().map(partCard).join('')}    ${studentLinksCard()}
 
@@ -64,8 +64,8 @@ function teacherGameView(g, body, mkCtx) {
   if (g.part === 'C' && typeof teacherShiftView === 'function') return teacherShiftView(g, body);
   let special = '';
   if (g.teacherView) special = g.teacherView();
-  const dyn = g.id === 'a_review' || g.id === 'a_exam';
-  if (dyn) special = '<div class="card soft small">משחק שנבנה מהשאלות של שאר המשחקים בחלק א׳. אפשר להפעיל אותו ולנסות. התשובות הנכונות של כל השאלות מופיעות במפתח של המשחקים האחרים.</div>';
+  const dyn = g.id === 'a_review' || g.id === 'a_exam' || g.id.startsWith('a_mix');
+  if (dyn) special = '<div class="card soft small">משחק שנבנה מהשאלות של שאר המשחקים בחלק א׳ (בתרגול המעורב: כל השאלות של הנושא). אפשר להפעיל אותו ולנסות. התשובות הנכונות של כל השאלות מופיעות במפתח של המשחקים האחרים.</div>';
   const d = dyn ? null : collectKey([g])[0];
   const learned = g.learned && g.learned.length ? `<div class="card learned"><h3>📚 מה למדנו (מה שהתלמיד רואה בסיום)</h3><ul>${g.learned.map(x => `<li>${x}</li>`).join('')}</ul></div>` : '';
   const key = d ? gameKeyBlock(d, null, true) : '';
@@ -112,7 +112,7 @@ function collectKey(list) {
   window.sortGame = (r, o) => { cur.b.push(o); go(() => o.onDone && o.onDone(100)); };
   window.matchGame = (r, o) => { cur.m.push(o.pairs); go(() => o.onDone && o.onDone(100)); };
   window.predictTable = (r, o) => { (cur.p = cur.p || []).push(o); go(() => o.onDone && o.onDone(100)); };
-  (list || GAMES.filter(g => g.part === 'A' && g.id !== 'a_review' && g.id !== 'a_exam')).forEach(g => {
+  (list || GAMES.filter(g => g.part === 'A' && g.id !== 'a_review' && g.id !== 'a_exam' && !g.id.startsWith('a_mix'))).forEach(g => {
     cur = { g, q: [], o: [], b: [], m: [] };
     const root = dummy();
     go(() => g.mount(root, { game: g, root, teacher: true, finish() { } }));
@@ -203,5 +203,6 @@ function studentLinksCard() {
   const row = (label, rel) => `<div class="row" style="gap:6px;margin:6px 0;align-items:center"><span class="small" style="flex:0 0 38%">${label}</span><input type="text" readonly value="${esc(studentUrl(rel))}" style="direction:ltr;flex:1;min-width:0"><button class="btn sm" data-cp="${esc(studentUrl(rel))}">העתקה</button><a class="btn sm" href="${esc(studentUrl(rel))}" target="_blank" rel="noopener">פתיחה</a></div>`;
   return `<div class="card" id="slinks"><h2>🔗 קישורים לתלמידים</h2><p class="small muted" style="margin-top:0">קישורים לגרסת התלמיד (בלי תשובות ובלי כניסת מורה). מעתיקים ושולחים.</p>
     ${row('🫘 הכלי כולו', 'index.html')}${activeParts().map(p => row(PART_ICON[p] + ' חלק ' + PARTS[p].l + ' כולו', 'parts/part-' + p + '.html')).join('')}
+    <details style="margin-top:8px"><summary><b>❓ שאלות רב-ברירה בלבד (לחזרה)</b></summary><p class="small muted">קישור שמציג לתלמיד רק את שאלות הרב-ברירה של הנושא, מעורבבות, בלי משחקים ואיורים. כל השאלות של הנושא, ב-20 בכל פעם.</p>${GAMES.filter(g => g.id.startsWith('a_mix')).map(g => row(g.icon + ' ' + g.title.replace('תרגול מעורב: ', ''), 'parts/game-' + g.id + '.html')).join('')}</details>
     <details style="margin-top:8px"><summary><b>משחק בודד</b></summary>${GAMES.map(g => row(g.icon + ' ' + g.title.split(':')[0], 'parts/game-' + g.id + '.html')).join('')}</details></div>`;
 }

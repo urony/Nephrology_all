@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מכפיל הזרם הנגדי בלולאת הנלה</title>
+<style>
+  :root{
+    --bg:#f7f6f2; --ink:#14121c; --muted:#4b4760; --panel:#ffffff; --line:#d9d5e6;
+    --water:#1e88ff; --salt:#ff8f00; --wall-d:#1565c0; --wall-a:#d84315; --osm:#6a1b9a;
+    --btn:#2d2a6e; --btn-ink:#ffffff; --accent:#ffb300;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:"Segoe UI","Heebo",Arial,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+  header{padding:8px 20px;background:var(--btn);color:#fff;display:flex;align-items:baseline;gap:16px;flex:0 0 auto}
+  header h1{margin:0;font-size:26px}
+  header span{font-size:18px;opacity:.85}
+  header .credit{margin-inline-start:auto;font-size:14px;opacity:.85;white-space:nowrap}
+  main{flex:1 1 auto;display:flex;min-height:0}
+  #panel{flex:1 1 430px;min-width:400px;background:var(--panel);border-inline-end:2px solid var(--line);padding:10px 16px;overflow:auto;font-size:19px;line-height:1.38}
+  #panel .badge{display:inline-block;background:var(--btn);color:#fff;border-radius:20px;padding:1px 12px;font-size:16px;font-weight:700}
+  #panel h2{margin:5px 0 5px;font-size:23px;line-height:1.2}
+  #panel p{margin:4px 0}
+  #panel ul{margin:4px 0;padding-inline-start:22px}
+  #panel li{margin:2px 0}
+  .note{background:#fff7e0;border-inline-start:6px solid var(--accent);padding:4px 10px;margin:6px 0;font-size:17px}
+  .key{background:#e8f5e9;border-inline-start:6px solid #2e7d32;padding:4px 10px;margin:6px 0;font-size:18px;font-weight:600}
+  details.why{background:#eef6ff;border:2px solid #90caf9;border-radius:10px;padding:2px 10px;margin:8px 0;font-size:17px;line-height:1.4}
+  details.why summary{font-weight:800;font-size:18px;color:#0d47a1;cursor:pointer;padding:3px 0}
+  details.why ol,details.why ul{margin:4px 0;padding-inline-start:22px} details.why p{margin:4px 0}
+  details.why .res{background:#fff;border-radius:6px;padding:3px 8px;margin:4px 0;font-weight:600}
+  .vasa{background:#fdecea;border:2px solid #e57373;border-radius:12px;padding:6px 12px;margin:8px 0;font-size:19px;line-height:1.4}
+  .vasa p{margin:4px 0} .vasa ul{margin:4px 0} .vasa .small{font-size:16px;color:var(--muted)}
+  #explore{background:#f1eefb;border:2px solid #b9aee6;border-radius:12px;padding:8px 12px;margin-bottom:12px}
+  #explore h3{margin:2px 0 4px;font-size:23px}
+  #explore .hint{font-size:17px;margin:2px 0 6px;color:var(--muted)}
+  #explore .sl{display:block;font-size:19px;font-weight:600;margin:8px 0}
+  #explore .sl b{color:var(--btn);font-size:21px;margin-inline-start:6px}
+  #explore input[type=range]{width:100%;height:30px}
+  #explore .row2{display:flex;gap:8px;margin:6px 0}
+  #explore .row2 button{font-size:17px;padding:6px 10px;min-height:40px}
+  #mini{width:100%;height:auto;background:#fff;border-radius:8px;border:1px solid var(--line);margin-top:4px}
+  #exInfo{font-size:18px;margin-top:6px}
+  .legend{margin-top:10px;border-top:2px solid var(--line);padding-top:8px;font-size:18px}
+  .legend div{display:flex;align-items:center;gap:8px;margin:4px 0}
+  .ico{width:22px;height:22px;display:inline-block;flex:0 0 22px}
+  .drop{background:var(--water);border-radius:50% 50% 50% 50%/65% 65% 35% 35%;border:2px solid #0b3d91;width:16px;height:20px;margin:0 3px}
+  .saltd{background:var(--salt);border-radius:50%;border:2px solid #6d3200}
+  .pump{background:#ffd180;border:2px solid #bf360c;border-radius:4px;width:14px;height:22px;margin:0 4px}
+  .wallD{border-top:4px dashed var(--wall-d);height:0;width:22px}
+  .wallA{border-top:4px solid var(--wall-a);height:0;width:22px}
+  .wallT{border-top:4px dotted var(--wall-a);height:0;width:22px}
+  #bar{height:20px;border-radius:4px;border:1px solid #777;margin:4px 0 0}
+  #barlab{display:flex;justify-content:space-between;font-size:16px;color:var(--muted)}
+  details{margin-top:10px;font-size:17px;color:var(--muted)}
+  details summary{cursor:pointer;font-weight:700}
+  #stage{flex:0 0 auto;min-width:0;position:relative;display:flex;align-items:flex-start;justify-content:flex-start}
+  canvas{display:block}
+  footer{flex:0 0 auto;background:#fff;border-top:2px solid var(--line);padding:8px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  button{font:inherit;font-size:20px;font-weight:700;background:var(--btn);color:var(--btn-ink);border:0;border-radius:10px;padding:8px 18px;cursor:pointer;min-height:46px}
+  button:hover:not(:disabled){background:#4540a8}
+  button:focus-visible,input:focus-visible{outline:4px solid var(--accent);outline-offset:2px}
+  button:disabled{opacity:.4;cursor:default}
+  button.sec{background:#e9e6f7;color:var(--btn)}
+  .steps{display:flex;gap:6px;margin-inline-start:auto}
+  .steps button{width:46px;padding:0;background:#e9e6f7;color:var(--btn);border-radius:50%}
+  .steps button.on{background:var(--accent);color:#14121c}
+  .ctl{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:600}
+  .ctl input[type=checkbox]{width:24px;height:24px}
+  .ctl input[type=range]{width:150px}
+  @media (max-width:900px){
+    html,body{height:auto;min-height:100%} body{overflow:auto}
+    header{padding:6px 12px} header h1{font-size:18px} header span{display:none}
+    main{flex-direction:column-reverse}
+    #stage{width:100%!important}
+    #panel{flex:none;min-width:0;width:auto;border:0;font-size:18px;overflow:visible}
+    footer{position:sticky;bottom:0;z-index:5;padding:4px 6px;gap:4px}
+    button{font-size:13px;padding:2px 6px;min-height:32px;border-radius:8px}
+    .ctl{font-size:13px;gap:3px} .ctl input[type=checkbox]{width:18px;height:18px} .ctl input[type=range]{width:70px}
+    .steps{gap:3px} .steps button{width:30px;min-height:30px}
+  }
+</style>
+</head>
+<body>
+<header><h1>מכפיל הזרם הנגדי · לולאת הנלה</h1><span>כיצד נוצר מפל הריכוזים במדולת הכליה</span><small class="credit">פותח על ידי אורי העליון</small></header>
+<main>
+  <section id="panel" aria-live="polite">
+    <div id="explore" hidden>
+      <h3>מצב חקר: שנו ובדקו</h3>
+      <p class="hint">כל שינוי מאפס את התהליך. לחצו <b>הפעל</b> או <b>קפוץ לתוצאה</b> וראו איך המפל משתנה.</p>
+      <label class="sl">יכולת העברת מלח בזרוע העולה <b id="vE"></b>
+        <input id="pE" type="range" min="0" max="300" step="25" value="200"></label>
+      <details class="why"><summary>❓ למה זה משנה?</summary><div id="wE"></div></details>
+      <label class="sl">חדירות הזרוע היורדת למים <b id="vP"></b>
+        <input id="pP" type="range" min="0" max="120" step="10" value="100"></label>
+      <details class="why"><summary>❓ למה זה משנה?</summary><div id="wP"></div></details>
+      <label class="sl">קצב זרימת התסנין <b id="vF"></b>
+        <input id="pF" type="range" min="0.5" max="3" step="0.25" value="1"></label>
+      <details class="why"><summary>❓ למה זה משנה?</summary><div id="wF"></div></details>
+      <div class="row2"><button id="bDef" class="sec">↺ ברירת מחדל</button><button id="bEnd">⏭ קפוץ לתוצאה</button></div>
+      <canvas id="mini" width="380" height="250" aria-label="פרופיל אוסמולריות לפי עומק"></canvas>
+      <div id="exInfo"></div>
+    </div>
+    <span class="badge" id="pBadge"></span>
+    <h2 id="pTitle"></h2>
+    <div id="pBody"></div>
+    <div id="vasaNote" class="vasa" hidden>
+      <b>כלי הדם (vasa recta)</b>
+      <p>נימיות שרצות במקביל ללולאה, <b>בזרימה נגדית</b>: ענף אחד יורד (ימין) והשני עולה (שמאל).</p>
+      <ul>
+        <li>הדם היורד מתאזן עם הסביבה המרוכזת: מקבל מלח ומאבד מים.</li>
+        <li>הדם העולה עושה את ההפך, ולכן <b>מוציא את המים העודפים</b> מהמדולה אל מחזור הדם, בלי לשטוף את כל המלח.</li>
+        <li>בזכות זה הנפח הבין־תאי נשאר קבוע והמים לא מדללים אותו.</li>
+      </ul>
+      <p class="small">בציור: ייצוג של המים הנאספים. המודל מחשב את ההשפעה (כולל הוצאת כ־3% מהמומסים בכל מחזור, שאינה מצוירת), לא זרימת דם מדומה.</p>
+    </div>
+    <div class="legend">
+      <b>מקרא</b>
+      <div><span class="ico drop"></span> מים (H₂O)</div>
+      <div><span class="ico saltd"></span> מלח (NaCl)</div>
+      <div><span class="ico wallD"></span> דופן הזרוע היורדת: חדירה מאוד למים</div>
+      <div><span class="ico pump"></span><span class="ico wallA"></span> מקטע עבה עולה: משאבות פעילות (ATP)</div>
+      <div><span class="ico wallT"></span> מקטע דק עולה: מעבר פסיבי של NaCl</div>
+      <div><span class="ico" style="border:3px solid #b71c1c;border-radius:6px"></span> כלי דם (מופיע בכפתור "כלי דם")</div>
+      <div style="display:block">הצבע = אוסמולריות (mOsm/L); כהה יותר = מרוכז יותר
+        <div id="bar"></div>
+        <div id="barlab"><span>300</span><span>600</span><span>900</span><span>1200</span></div>
+      </div>
+    </div>
+    <details>
+      <summary>הנחות המודל (לעיון המורה)</summary>
+      <ul>
+        <li>מודל חינוכי: הלולאה מחולקת ל־10 מקטעים (9 עבים ומקטע דק אחד בתחתית הזרוע העולה; השרטוט סכמטי). בכל מקטע נשמרות כמות המומס וכמות המים של התסנין (מאזן מסה). אוסמולריות = מומס ÷ מים.</li>
+        <li>כל מחזור = (1) העברת NaCl מהזרוע העולה, (2) יציאת מים מהזרוע היורדת, (3) התקדמות התסנין מקטע אחד. בגוף שלושת התהליכים מתרחשים בו־זמנית; ההפרדה נועדה להמחשה.</li>
+        <li>ה־Single Effect: במקטע העבה מוגבל להפרש של 200 mOsm/L בין התסנין לסביבה (ערך מקובל בספרי הלימוד). במקטע הדק NaCl יוצא רק בשיפוע ריכוז, ללא משאבות.</li>
+        <li>כלי הדם (vasa recta) מוסיפים לנוזל הבין־תאי שני פישוטים: המים שיצאו מהיורדת נאספים ואינם מדללים אותו, ובכל מחזור מוסר חלק קטן (3%) מהמומסים העודפים. בנוסף מתרחשת דיפוזיה אנכית בנוזל הבין־תאי בין מקטעים שכנים (חצי מההפרש בכל מחזור), והיא מרככת קפיצות חדות. בלי הוצאת מומסים המפל היה גדל ללא גבול.</li>
+        <li>אין כאן אוראה, ADH וצינור מאסף: המודל מציג רק את המפל שלולאת הנלה מייצרת, לא את היכולת הסופית לרכז שתן. ערכי הסרגל נובעים מהחישוב ולא נקבעו מראש.</li>
+      </ul>
+    </details>
+  </section>
+  <section id="stage"><canvas id="cv" aria-label="איור לולאת הנלה"></canvas></section>
+</main>
+<footer>
+  <button id="bPlay">▶ הפעל</button>
+  <button id="bPause" class="sec">⏸ עצור</button>
+  <button id="bBack" class="sec">→ שלב קודם</button>
+  <button id="bNext" class="sec">שלב הבא ←</button>
+  <button id="bReset" class="sec">↺ התחל מחדש</button>
+  <label class="ctl">מהירות <input id="speed" type="range" min="0.25" max="3" step="0.25" value="1"><span id="speedLab">×1</span></label>
+  <label class="ctl"><input id="chkVals" type="checkbox" checked> הצג ריכוזים</label>
+  <label class="ctl"><input id="chkFlow" type="checkbox" checked> הצג חצי זרימה</label>
+  <label class="ctl"><input id="chkStop" type="checkbox"> עצור אחרי כל שלב</label>
+  <button id="bVasa" class="sec" aria-pressed="false">🩸 כלי דם</button>
+  <button id="bExplore" class="sec" aria-pressed="false">🔬 מצב חקר</button>
+  <div class="steps" id="dots"></div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+/* ============ מודל ============ */
+const N=10, THICK=9, LAM=0.03, KAP=0.5, BASE=300, CN=50;
+const DEF={E:200,perm:1,flow:1};   // E: מקסימום הפרש (יכולת המשאבות); perm: חדירות היורדת למים; flow: קצב זרימה יחסי
+let PR={...DEF};
+// החלק מהשיווי משקל שמושג בכל שלב: זרימה מהירה = פחות זמן להעברה
+const fPump=pr=>1-Math.exp(-5/pr.flow), fWater=pr=>1-Math.exp(-2.3*pr.perm/pr.flow);
+const clone=o=>JSON.parse(JSON.stringify(o));
+function initState(){
+  const mk=()=>Array.from({length:N},()=>({S:BASE,W:1}));
+  return {D:mk(),A:mk(),I:Array(N).fill(BASE)};
+}
+// (1) Single effect. עבה: פעיל עד הפרש E. דק: פסיבי, רק בשיפוע ריכוז (הפרש 0). נפח בין-תאי = 1.
+function pump(s,pr){
+  const o=clone(s), fp=fPump(pr);
+  for(let i=0;i<N;i++){
+    const a=o.A[i], Ca=a.S/a.W, Ci=o.I[i], gap=i<THICK?pr.E:0;
+    let dS=(Ca-Ci+gap)/(1/a.W+1);
+    if(dS>0){ dS=Math.min(dS*fp,a.S); a.S-=dS; o.I[i]+=dS; }
+  }
+  return o;
+}
+// (2) מים עוברים מהיורדת עד קרוב לשיווי משקל אוסמוטי עם הסביבה.
+function water(s,pr){
+  const o=clone(s), fw=fWater(pr);
+  for(let i=0;i<N;i++){ const d=o.D[i]; d.W += fw*(d.S/o.I[i] - d.W); }
+  return o;
+}
+// (3) התקדמות התסנין + פישוטי הנוזל הבין-תאי (הוצאת מומסים בכלי הדם, דיפוזיה אנכית קלה)
+function advance(s){
+  const o=clone(s);
+  const I=s.I.map(v=>v-LAM*(v-BASE)), J=I.slice();
+  for(let i=0;i<N;i++){const up=i>0?J[i-1]:BASE, dn=i<N-1?J[i+1]:J[i]; I[i]=J[i]+KAP*(up+dn-2*J[i]);}
+  o.I=I;
+  o.D=[{S:BASE,W:1}].concat(s.D.slice(0,N-1).map(x=>({...x})));
+  o.A=s.A.slice(1).map(x=>({...x})).concat([{...s.D[N-1]}]);
+  return o;
+}
+const TYPES=['pump','water','advance'];
+function buildS(pr){ // S[p] = מצב אחרי שלב-משנה p
+  const out=[initState()];
+  for(let c=1;c<=CN;c++){ out.push(pump(out[out.length-1],pr)); out.push(water(out[out.length-1],pr)); out.push(advance(out[out.length-1])); }
+  return out;
+}
+let S=buildS(PR);
+const S_BASE=buildS(DEF);
+const PF=3*CN;
+const phaseType=p=>TYPES[(p-1)%3], phaseCycle=p=>Math.floor((p-1)/3)+1;
+const STAGE_END=[0,0,1,2,3,3+3*5,PF];   // אינדקס 1..6
+function stageOf(p){ for(let k=1;k<=6;k++) if(STAGE_END[k]>=p) return k; return 6; }
+function phaseDur(p){
+  const t=phaseType(p), c=phaseCycle(p);
+  const base=t==='advance'?2.8:2.6;
+  const f=c===1?1:c===2?0.7:c===3?0.5:c===4?0.4:c<=6?0.3:0.1;
+  return base*f;
+}
+const conc=o=>o.S/o.W;
+
+/* ============ צבעים ============ */
+const STOPS=[[0,[242,235,250]],[0.35,[201,169,236]],[0.7,[132,71,196]],[1,[58,14,110]]];
+function osmColor(c){
+  let t=Math.max(0,Math.min(1,(c-300)/900)); t=Math.pow(t,0.6);
+  for(let k=1;k<STOPS.length;k++){
+    if(t<=STOPS[k][0]){
+      const [t0,c0]=STOPS[k-1],[t1,c1]=STOPS[k], f=(t-t0)/(t1-t0);
+      return `rgb(${Math.round(c0[0]+(c1[0]-c0[0])*f)},${Math.round(c0[1]+(c1[1]-c0[1])*f)},${Math.round(c0[2]+(c1[2]-c0[2])*f)})`;
+    }
+  }
+  return 'rgb(58,14,110)';
+}
+(function(){
+  const st=[];for(let i=0;i<=12;i++){st.push(osmColor(300+i*75)+" "+(i/12*100)+"%");}
+  document.getElementById('bar').style.background="linear-gradient(to left,"+st.join(",")+")";
+})();
+
+/* ============ גיאומטריה ============ */
+const W0=1120,H0=790, ROW_Y0=100, ROW_H=46, DX=400, AX=660, CY=ROW_Y0+N*ROW_H, BR=130, BCX=530;
+const HD=40, HAK=56, HAN=40; // חצי רוחב: יורדת, עולה עבה, עולה דקה
+const rowTop=i=>ROW_Y0+i*ROW_H;
+const REG=[[150,285],[455,590],[728,905]];
+const MED={x:140,y:ROW_Y0,w:780,h:660};
+const aHalf=i=>i<THICK?HAK:HAN;
+const ARC_LEN=Math.PI*BR, PATH_LEN=ROW_H+ARC_LEN;
+
+/* ============ מצב אנימציה ============ */
+let cur=0, target=0, tween=null, frozen=true, wait=0, T=0, advOff=0, incoming=null;
+let disp=clone(S[0]);
+let speed=1, showVals=true, showFlow=true, stopAfterStage=false;
+const parts={dW:[],dS:[],aW:[],aS:[],iS:[]};
+for(const k in parts){for(let i=0;i<N;i++)parts[k][i]=[];}
+let fades=[], transits=[], bl=[], vasaOn=false;
+// כלי דם (vasa recta): VD יורד (ימין), VA עולה (שמאל, צמוד ליורדת של הנלה), עיקול סביב (VCX, CY)
+const VA=478, VD=566, VCX=522, VR=44;
+
+const newTube=()=>({u:Math.random(),v:Math.random()*2-1,ph:Math.random()*6.28,a:1});
+function newI(i){
+  const r=Math.floor(Math.random()*3), g=REG[r];
+  return {x:g[0]+Math.random()*(g[1]-g[0]), y:rowTop(i)+8+Math.random()*(ROW_H-16), ph:Math.random()*6.28, a:1};
+}
+function counts(i){
+  const d=disp.D[i], a=disp.A[i];
+  return {dW:Math.round(d.W*16),dS:Math.round(d.S/BASE*6),aW:Math.round(a.W*16),aS:Math.round(a.S/BASE*6),iS:Math.round(disp.I[i]/BASE*6)};
+}
+function pathPos(p,off){ // D האחרון → עיקול → A האחרון
+  const dist=off*PATH_LEN, s1=(1-p.u)*ROW_H, hw=HD-10;
+  if(dist<=s1) return [DX+p.v*hw, rowTop(N-1)+p.u*ROW_H+dist];
+  const d2=dist-s1;
+  if(d2<=ARC_LEN){const phi=d2/BR, r=BR-p.v*hw; return [BCX-r*Math.cos(phi), CY+r*Math.sin(phi)];}
+  return [BCX+BR-p.v*hw, CY-(d2-ARC_LEN)];
+}
+function posD(i,p,off){
+  if(off>0&&i===N-1) return pathPos(p,off);
+  const y=rowTop(i)+(p.u+off)*ROW_H+Math.sin(T*1.7+p.ph*2)*1.5;
+  return [DX+p.v*(HD-10)+Math.sin(T*2+p.ph)*2.5, y];
+}
+function posA(i,p,off){
+  const y=rowTop(i)+ROW_H-(p.u+off)*ROW_H+Math.sin(T*1.7+p.ph*2)*1.5;
+  return [AX+p.v*(aHalf(i)-10)+Math.sin(T*2+p.ph)*2.5, y];
+}
+function reconcile(animate){
+  for(let i=0;i<N;i++){
+    const c=counts(i);
+    for(const k of ['dW','dS','aW','aS']){
+      const arr=parts[k][i], side=k[0]==='d'?'D':'A';
+      while(arr.length<c[k]){const p=newTube();p.a=animate?0:1;arr.push(p);}
+      while(arr.length>c[k]){
+        const p=arr.pop();
+        if(!animate) continue;
+        const [x,y]=side==='D'?posD(i,p,0):posA(i,p,0);
+        if(k==='aS'){
+          const hw=aHalf(i);   // מלח יוצא רק ימינה, אל הפרנכימה (לא אל כלי הדם)
+          transits.push({x0:x,y0:y,x1:AX+hw+20+Math.random()*(150),y1:y+(Math.random()*20-10),t:0,kind:'salt'});
+        } else if(k==='dW'){
+          if(vasaOn){ transits.push({x0:x,y0:y,x1:VA+(Math.random()*8-4),y1:y+(Math.random()*8-4),t:0,kind:'water',toVessel:true}); }
+          else { const left=Math.random()<0.55;
+          transits.push({x0:x,y0:y,x1:left?DX-HD-25-Math.random()*(120):DX+HD+15+Math.random()*(60),y1:y+(Math.random()*20-10),t:0,kind:'water'}); }
+        } else fades.push({x,y,kind:k[1]==='W'?'water':'salt',a:1});
+      }
+    }
+    const arr=parts.iS[i];
+    while(arr.length<c.iS){const p=newI(i);p.a=animate?0:1;arr.push(p);}
+    while(arr.length>c.iS){const p=arr.pop(); if(animate)fades.push({x:p.x,y:p.y,kind:'salt',a:1});}
+  }
+}
+function rebuild(){
+  for(const k in parts){for(let i=0;i<N;i++)parts[k][i]=[];}
+  fades=[];transits=[];bl=[];reconcile(false);
+}
+
+/* ============ טקסטים ============ */
+const f0=x=>Math.round(x);
+function stageText(k){
+  const fin=S[PF], mx=Math.max(...fin.I), top=fin.I[0], out=conc(S[PF-1].A[0]);
+  const T_=[null,
+  {title:"מצב התחלתי",
+   body:`<p>בכל חלקי הלולאה, בזרוע היורדת, בזרוע העולה ובנוזל הבין־תאי, האוסמולריות זהה: <b>300 mOsm/L</b>.</p>
+   <ul><li>הצבע אחיד: אין מפל ריכוזים. סרגל האוסמולריות משמאל אחיד גם הוא.</li><li>הנוזל זורם למטה בזרוע היורדת ולמעלה בזרוע העולה.</li></ul>
+   <p>לחצו <b>הפעל</b> או <b>שלב הבא</b>.</p>`},
+  {title:"מלח יוצא מהזרוע העולה (Single Effect)",
+   body:`<p>במקטע העבה של הזרוע העולה <b>משאבות פעילות</b> מעבירות NaCl אל הנוזל הבין־תאי. הזרוע העולה כמעט <b>אטומה למים</b>, ולכן המים אינם יוצאים איתו.</p>
+   <ul><li>חלקיקים כתומים (NaCl) יוצאים מהזרוע העולה.</li>
+   <li>התסנין בעולה <b>מתדלל</b>: הצבע בהיר יותר.</li>
+   <li>הנוזל הבין־תאי <b>מתרכז</b>: הצבע כהה יותר.</li></ul>
+   <div class="key">נוצר הפרש מקומי של עד ${f0(PR.E)} mOsm/L בין התסנין לסביבה: זה ה־Single Effect.</div>
+   <div class="note">במקטע הדק עדיין אין הפרש ריכוזים, ולכן אין בו מעבר פסיבי של NaCl.</div>`},
+  {title:"מים יוצאים מהזרוע היורדת",
+   body:`<p>הסביבה מרוכזת עכשיו יותר מהתסנין שביורדת. הזרוע היורדת <b>חדירה מאוד למים</b> (תעלות אקוופורין), ולכן מים יוצאים באוסמוזה אל הסביבה.</p>
+   <ul><li>טיפות כחולות יוצאות מהזרוע היורדת: התסנין מתכווץ.</li>
+   <li>המומסים בתסנין נשארים, ולכן הוא <b>מתרכז</b> ומתקרב לאוסמולריות הסביבה.</li></ul>
+   <div class="key">מים יוצאים מהיורדת. מלח יוצא מהעולה.</div>
+   <div class="note">זהו הפרש מקומי בכל גובה, עדיין לא מפל לאורך המדולה. הנוזל לא זז: בשלב הבא הוא יתקדם.</div>`},
+  {title:"התסנין מתקדם",
+   body:`<p>הנוזל זז <b>מקטע אחד</b> לאורך הלולאה: למטה ביורדת, דרך העיקול, ולמעלה בעולה. תסנין חדש (300) נכנס מלמעלה.</p>
+   <ul><li>התסנין המרוכז שירד מגיע עכשיו אל מקטע נמוך יותר.</li>
+   <li>כל מקטע בזרוע העולה מקבל כעת נוזל שהגיע מעומק גדול יותר, ולכן הוא מכיל יותר מלח.</li>
+   <li>לכן המשאבות יכולות שוב להעביר מלח, והתסנין שבעולה מתדלל עוד.</li></ul>
+   <div class="key">התנועה משנה את ההתפלגות: זה מה שמאפשר להצטבר.</div>`},
+  {title:"חוזרים על המחזור",
+   body:`<p>שוב ושוב: <b>מלח יוצא מהעולה ← מים יוצאים מהיורדת ← התסנין מתקדם</b>.</p>
+   <ul><li>בכל מחזור נוסף מעט מלח לנוזל הבין־תאי, והוא מצטבר.</li>
+   <li>התסנין שירד כבר מרוכז כשהוא מגיע לעומק, ולכן הסביבה העמוקה מתרכזת עוד.</li>
+   <li>עקבו אחרי <b>סרגל האוסמולריות</b> משמאל: הוא משנה צבע מלמעלה למטה.</li></ul>
+   <div class="key">הפרש מקומי קטן × הרבה מחזורים = מפל גדול.</div>`},
+  {title:"המצב אחרי מחזורים רבים",
+   body:`<p>האנימציה נעצרה אחרי <b>${CN} מחזורים</b>.</p>
+   <ul><li>למעלה (ליד הקליפה) הסביבה פחות מרוכזת: כ־<b>${f0(top)}</b> mOsm/L.</li>
+   <li>בעומק היא מרוכזת בהרבה: עד כ־<b>${f0(mx)}</b> mOsm/L.</li>
+   <li>התסנין ביורדת מתרכז בדרכו מטה, ובעולה מתדלל בדרכו מעלה, ויוצא מהלולאה דליל: כ־<b>${f0(out)}</b> mOsm/L.</li></ul>
+   <div class="key">מכפיל הזרם הנגדי הופך הפרשי ריכוזים מקומיים (${f0(PR.E)}) למפל ריכוזים משמעותי לאורך המדולה.</div>
+   <div class="note">מה שלא מוצג: בגוף, מִחזור אוראה תורם למפל במדולה הפנימית (עד כ־1,200 mOsm/L), ו־ADH בצינור המאסף מנצל את המפל לספיגת מים. כאן מוצג רק המפל של לולאת הנלה, ולכן הערכים נעצרים בערך שנובע מהמודל. במקטע הדק אין משאבות, ולכן הריכוז בו נקבע בעיקר על ידי התסנין שמגיע מלמעלה.</div>`}
+  ];
+  return T_[k];
+}
+const $=id=>document.getElementById(id);
+// הסברי "למה?" לכל שלב (שרשרת סיבתית, עם מספרים מהמודל)
+function whyText(k){
+  const d3=conc(S[2].D[0]), i2=S[1].I[0], a2=conc(S[1].A[0]), fin=S[PF], g=Math.max(...fin.I)-Math.min(...fin.I);
+  const W=[null,
+  `<p>למה מתחילים מאוסמולריות אחידה?</p><ol>
+   <li>כשהאוסמולריות זהה בכל מקום אין הפרש אוסמוטי, ולכן אין תנועת מים נטו.</li>
+   <li>המפל אינו קיים מראש. הוא נוצר רק מפעילות הלולאה: משאבות וזרימה.</li></ol>`,
+  `<ol><li>המשאבות בדופן העולה מעבירות NaCl החוצה, נגד שיפוע הריכוז, באמצעות ATP.</li>
+   <li>הדופן כמעט אטומה למים, לכן אין אוסמוזה ומים אינם עוברים עם המלח.</li>
+   <li>התסנין מאבד מלח ולא מים: הוא מתדלל (${f0(a2)}). הסביבה מקבלת מלח: היא מתרכזת (${f0(i2)}).</li>
+   <li>למה רק כ־${f0(PR.E)}? ככל שההפרש גדל, קשה יותר למשאבות להמשיך להעביר נגד השיפוע, ולכן ההפרש המקומי מוגבל.</li></ol>
+   <p>במקטע הדק אין משאבות, והמלח עובר רק מאזור מרוכז לדליל. בהתחלה אין שם הפרש כזה, ולכן לא קורה כלום.</p>`,
+  `<ol><li>אחרי שלב 2 הסביבה מרוכזת מהתסנין ביורדת, כלומר ריכוז המים בתוך הצינור גבוה יותר.</li>
+   <li>מים נעים באוסמוזה מהצד המדולל (בתוך הצינור) אל הצד המרוכז (הסביבה).</li>
+   <li>הדופן היורדת חדירה מאוד למים (תעלות אקוופורין), ולמלח כמעט לא. לכן יוצאים מים ולא מלח.</li>
+   <li>המים יוצאים והמומסים נשארים: התסנין מתרכז עד קרוב לסביבה (${f0(d3)}).</li>
+   <li>המים נאספים על ידי כלי הדם, ולכן הסביבה לא מתדללת (כפתור "כלי דם").</li></ol>`,
+  `<ol><li>בלי תנועה כל מקטע מגיע לשיווי משקל ונשאר שם: ההפרש המקומי (${f0(PR.E)}) קבוע ואין מפל.</li>
+   <li>כשהנוזל נע, התסנין שהתרכז ביורדת יורד אל מקטע נמוך יותר, מגיע לעיקול ועולה בזרוע העולה.</li>
+   <li>כל מקטע בעולה מקבל נוזל שהגיע מעומק גדול יותר, ולכן מכיל יותר מלח ממה שהיה במקום. המשאבות מוציאות ממנו שוב מלח.</li>
+   <li>כך ההפרש של ${f0(PR.E)} מתווסף על רמה שכבר גבוהה, ולא על 300. זו ההכפלה.</li>
+   <li>בגלל זרימה בכיוונים הפוכים בשתי הזרועות, מה שיוצא מהיורדת מרוכז הוא מה שמגיע אל העולה. זה ה"זרם הנגדי".</li></ol>`,
+  `<ol><li>בכל מחזור המשאבות מוסיפות מלח לנוזל הבין־תאי, והמלח נשאר שם.</li>
+   <li>התסנין המרוכז שיורד נושא מלח אל העומק, ושם הוא מתרכז עוד.</li>
+   <li>כל מחזור מוסיף עוד מעט על מה שכבר נצבר, ולכן המפל גדל בהדרגה.</li>
+   <li>הגידול נעצר: כשהמלח שנכנס שווה למה שנאסף (כלי דם) וההפרש בכל גובה הגיע לגבול (${f0(PR.E)}).</li></ol>`,
+  `<ol><li>למה המפל מתייצב? הכניסה והיציאה של מלח מתאזנות והמפל נשאר קבוע.</li>
+   <li>למה בעומק יותר? התסנין שמגיע לעומק כבר עבר הרבה מקטעים שבהם התרכז.</li>
+   <li>למה למעלה פחות? שם התסנין החדש הוא רק בתחילת הדרך (300).</li>
+   <li>למה המקטע הדק לא מוסיף? אין בו משאבות, והמלח יוצא ממנו רק עד שהריכוזים משתווים.</li></ol>
+   <p class="res">המפל במודל: ${f0(g)} mOsm/L (שיא פחות שפל). ללא אוראה וללא ADH.</p>`];
+  return W[k];
+}
+function showStage(k){
+  const t=stageText(k);
+  $('pBadge').textContent="שלב "+k+" מתוך 6"; $('pTitle').textContent=t.title;
+  $('pBody').innerHTML=t.body+'<details class="why"><summary>❓ למה זה קורה?</summary>'+whyText(k)+'</details>';
+  [...$('dots').children].forEach((b,i)=>b.classList.toggle('on',i+1===k));
+  $('bBack').disabled=cur===0&&!tween; $('bNext').disabled=(cur>=PF)&&!tween;
+}
+let shownStage=0;
+function refreshText(){
+  const p=tween?tween.p:cur, k=stageOf(p);
+  if(k!==shownStage){shownStage=k;showStage(k);}
+  $('bBack').disabled=cur===0&&!tween; $('bNext').disabled=(cur>=PF)&&!tween;
+}
+for(let k=1;k<=6;k++){const b=document.createElement('button');b.textContent=k;b.title="מעבר לשלב "+k;b.setAttribute('aria-label','שלב '+k);
+  b.onclick=()=>{snap();const e=STAGE_END[k]; if(e<cur){jumpTo(e);} else if(e>cur){target=e;frozen=false;} };
+  $('dots').appendChild(b);}
+
+/* ============ בקרה ============ */
+function snap(){ // מסיים מיידית את שלב-המשנה הפעיל
+  if(tween){ if(tween.type==='advance') commitAdvance(); cur=tween.p; disp=clone(S[cur]); tween=null; advOff=0; incoming=null; transits=[];fades=[];bl=[];rebuild(); }
+  refreshText();
+}
+function jumpTo(p){ tween=null;advOff=0;incoming=null;cur=p;target=p;disp=clone(S[p]);rebuild();frozen=true;wait=0;refreshText(); }
+function resetAll(){ jumpTo(0); }
+function nextBoundary(){ for(let k=1;k<=6;k++) if(STAGE_END[k]>cur) return STAGE_END[k]; return PF; }
+function prevBoundary(){ let b=0; for(let k=1;k<=6;k++) if(STAGE_END[k]<cur) b=STAGE_END[k]; return b; }
+$('bPlay').onclick=()=>{
+  snap();
+  if(cur>=PF) jumpTo(0);
+  target=stopAfterStage?nextBoundary():PF; frozen=false; wait=0.3;
+};
+$('bPause').onclick=()=>{target=cur;frozen=true;if(tween){target=tween.p;frozen=true;}};
+$('bNext').onclick=()=>{snap();if(cur<PF){target=nextBoundary();frozen=false;wait=0;}};
+$('bBack').onclick=()=>{snap();jumpTo(prevBoundary());};
+$('bReset').onclick=resetAll;
+$('speed').oninput=e=>{speed=+e.target.value;$('speedLab').textContent='×'+speed;};
+$('chkVals').onchange=e=>{showVals=e.target.checked;};
+$('chkFlow').onchange=e=>{showFlow=e.target.checked;};
+$('chkStop').onchange=e=>{stopAfterStage=e.target.checked;};
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'&&e.target.type==='range')return;
+  if(e.code==='Space'){e.preventDefault();(frozen?$('bPlay'):$('bPause')).click();}
+  else if(e.code==='ArrowLeft')$('bNext').click();
+  else if(e.code==='ArrowRight')$('bBack').click();
+});
+
+function startPhase(p){
+  const type=phaseType(p), dur=phaseDur(p);
+  tween={p:p,type:type,t:0,dur:dur,fast:dur<0.9};
+  if(type==='advance'){
+    incoming={dW:[],dS:[]};
+    for(let k=0;k<16;k++)incoming.dW.push(newTube());
+    for(let k=0;k<6;k++)incoming.dS.push(newTube());
+  }
+  refreshText();
+}
+function commitAdvance(){
+  const oD=parts.dW,oDs=parts.dS,oA=parts.aW,oAs=parts.aS;
+  const nDW=[],nDS=[],nAW=[],nAS=[];
+  for(let i=0;i<N;i++){nDW[i]=i===0?incoming.dW:oD[i-1];nDS[i]=i===0?incoming.dS:oDs[i-1];}
+  for(let i=0;i<N-1;i++){nAW[i]=oA[i+1];nAS[i]=oAs[i+1];}
+  nAW[N-1]=oD[N-1];nAS[N-1]=oDs[N-1];
+  for(const p of nAW[N-1])p.v=-p.v; for(const p of nAS[N-1])p.v=-p.v;
+  parts.dW=nDW;parts.dS=nDS;parts.aW=nAW;parts.aS=nAS;
+  incoming=null;
+}
+function lerpArr(a,b,t){return a.map((v,i)=>v+(b[i]-v)*t);}
+function lerpState(a,b,t){
+  const o=clone(a);
+  for(let i=0;i<N;i++){
+    for(const s of ['D','A']){o[s][i].S=a[s][i].S+(b[s][i].S-a[s][i].S)*t;o[s][i].W=a[s][i].W+(b[s][i].W-a[s][i].W)*t;}
+    o.I[i]=a.I[i]+(b.I[i]-a.I[i])*t;
+  }
+  return o;
+}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+function update(dt){
+  const sdt=dt*speed; T+=sdt;
+  if(tween){
+    tween.t=Math.min(1,tween.t+sdt/tween.dur);
+    const e=ease(tween.t);
+    if(tween.type==='advance'){
+      advOff=e;
+      disp=clone(S[cur]); disp.I=lerpArr(S[cur].I,S[tween.p].I,e);
+    } else {
+      disp=lerpState(S[cur],S[tween.p],e);
+      reconcile(!tween.fast);
+    }
+    if(tween.t>=1){
+      const wasAdv=tween.type==='advance', cyc=phaseCycle(tween.p);
+      if(wasAdv) commitAdvance();
+      cur=tween.p; disp=clone(S[cur]); tween=null; advOff=0;
+      if(wasAdv) rebuildCounts(); else reconcile(false);
+      wait=cyc<=2?0.6:0;
+      if(cur>=target) target=cur;
+      refreshText();
+    }
+  } else if(cur<target){
+    wait-=sdt; if(wait<=0) startPhase(cur+1);
+  }
+  for(const k in parts) for(let i=0;i<N;i++) for(const p of parts[k][i]) if(p.a<1)p.a=Math.min(1,p.a+sdt*2.5);
+  for(const f of fades)f.a-=sdt*2.2; fades=fades.filter(f=>f.a>0);
+  for(const t of transits)t.t+=sdt/1.5;
+  for(const t of transits) if(t.t>=1&&t.toVessel) bl.push({x:t.x1,y:t.y1,kind:t.kind,ph:Math.random()*6});
+  transits=transits.filter(t=>t.t<1);
+  for(const b of bl) b.y-=sdt*95; bl=bl.filter(b=>b.y>38);
+  if(!tween&&cur>=target&&!transits.length&&!fades.length&&!bl.length) frozen=true;
+}
+function rebuildCounts(){reconcile(false);}
+
+/* ============ ציור ============ */
+const cv=$('cv'), ctx=cv.getContext('2d');
+let sc=1, dpr=1;
+function resize(){
+  if(window.innerWidth<=900){ sc=window.innerWidth/W0; }
+  else{
+    const m=document.querySelector('main').getBoundingClientRect();
+    sc=Math.min((m.width-430)/W0,m.height/H0);
+    $('stage').style.width=(W0*sc)+'px';
+  }
+  if(!(sc>0))sc=1;
+  dpr=window.devicePixelRatio||1;
+  cv.style.width=W0*sc+'px'; cv.style.height=H0*sc+'px';
+  cv.width=Math.round(W0*sc*dpr); cv.height=Math.round(H0*sc*dpr);
+}
+window.addEventListener('resize',resize);
+
+function txt(s,x,y,o){
+  o=o||{}; ctx.font=(o.w||'600')+' '+(o.s||20)+'px "Segoe UI",Arial,sans-serif';
+  ctx.direction='rtl'; ctx.textAlign=o.a||'center'; ctx.textBaseline='middle';
+  ctx.fillStyle=o.c||'#14121c'; ctx.fillText(s,x,y);
+}
+function pill(s,x,y,col){
+  ctx.font='700 19px "Segoe UI",Arial,sans-serif';
+  const w=Math.max(46,ctx.measureText(s).width+16), h=28;
+  ctx.fillStyle='rgba(255,255,255,0.94)'; ctx.strokeStyle=col; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.roundRect(x-w/2,y-h/2,w,h,14); ctx.fill(); ctx.stroke();
+  txt(s,x,y+1,{s:19,w:'700',c:col});
+}
+function dropPath(x,y,k){
+  ctx.beginPath(); ctx.moveTo(x,y-8*k);
+  ctx.bezierCurveTo(x+6*k,y-1*k,x+6*k,y+5*k,x,y+5*k); ctx.bezierCurveTo(x-6*k,y+5*k,x-6*k,y-1*k,x,y-8*k);
+}
+function drop(x,y,a,k){
+  k=k||1.25; ctx.globalAlpha=Math.max(0,Math.min(1,a)); dropPath(x,y,k);
+  ctx.fillStyle='#1e88ff'; ctx.strokeStyle='#ffffff'; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+  dropPath(x,y,k); ctx.strokeStyle='rgba(11,61,145,.95)'; ctx.lineWidth=1; ctx.stroke(); ctx.globalAlpha=1;
+}
+function saltDot(x,y,a){
+  ctx.globalAlpha=Math.max(0,Math.min(1,a)); ctx.beginPath(); ctx.arc(x,y,5.5,0,6.283);
+  ctx.fillStyle='#ff8f00'; ctx.strokeStyle='#ffffff'; ctx.lineWidth=1.8; ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x,y,5.5,0,6.283); ctx.strokeStyle='rgba(109,50,0,.9)'; ctx.lineWidth=.8; ctx.stroke(); ctx.globalAlpha=1;
+}
+function chevron(x,y,ang){
+  ctx.save(); ctx.translate(x,y); ctx.rotate(ang);
+  ctx.beginPath(); ctx.moveTo(11,0); ctx.lineTo(-8,-10); ctx.lineTo(-3,0); ctx.lineTo(-8,10); ctx.closePath();
+  ctx.fillStyle='rgba(255,255,255,.95)'; ctx.strokeStyle='#1a1a3a'; ctx.lineWidth=2; ctx.fill(); ctx.stroke(); ctx.restore();
+}
+function bigArrow(x,y,dirX,fill,alpha,k){
+  ctx.save(); ctx.translate(x,y); ctx.scale(dirX*k,k); ctx.globalAlpha=alpha;
+  ctx.beginPath(); ctx.moveTo(18,0); ctx.lineTo(2,-12); ctx.lineTo(2,-5); ctx.lineTo(-18,-5); ctx.lineTo(-18,5); ctx.lineTo(2,5); ctx.lineTo(2,12); ctx.closePath();
+  ctx.fillStyle=fill; ctx.strokeStyle='#ffffff'; ctx.lineWidth=2.5; ctx.fill(); ctx.stroke();
+  ctx.lineWidth=1; ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.stroke(); ctx.restore();
+}
+function pumpIcon(x,y,dirX,glow){
+  ctx.save(); ctx.translate(x,y);
+  const s=1+0.25*glow; ctx.scale(s,s);
+  if(glow>0){ctx.shadowColor='#ff6d00';ctx.shadowBlur=14*glow;}
+  ctx.beginPath(); ctx.roundRect(-8,-11,16,22,4); ctx.fillStyle=glow>0?'#ffe082':'#ffd180'; ctx.strokeStyle='#bf360c'; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+  ctx.shadowBlur=0; ctx.beginPath(); ctx.moveTo(dirX*5,0); ctx.lineTo(-dirX*3,-5); ctx.lineTo(-dirX*3,5); ctx.closePath(); ctx.fillStyle='#bf360c'; ctx.fill();
+  ctx.restore();
+}
+function medGradient(){
+  const g=ctx.createLinearGradient(0,MED.y,0,MED.y+MED.h);
+  for(let i=0;i<N;i++){g.addColorStop(Math.min(1,(rowTop(i)+ROW_H/2-MED.y)/MED.h),osmColor(disp.I[i]));}
+  g.addColorStop(0,osmColor(disp.I[0])); g.addColorStop(1,osmColor(disp.I[N-1]));
+  return g;
+}
+const mixC=(a,b,t)=>a+(b-a)*t;
+
+function drawTubes(off){
+  // יורדת
+  ctx.save(); ctx.beginPath(); ctx.rect(DX-HD,36,2*HD,CY-36); ctx.clip();
+  ctx.fillStyle=osmColor(BASE); ctx.fillRect(DX-HD,36,2*HD,CY-36);
+  for(let i=0;i<N;i++){
+    const y=rowTop(i)+off*ROW_H; ctx.fillStyle=osmColor(conc(disp.D[i])); ctx.fillRect(DX-HD,y,2*HD,ROW_H+0.6);
+    ctx.strokeStyle='rgba(30,20,60,.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(DX-HD,y);ctx.lineTo(DX+HD,y);ctx.stroke();
+  }
+  ctx.restore();
+  // עולה
+  const tb=rowTop(THICK);
+  ctx.save(); ctx.beginPath(); ctx.rect(AX-HAK,36,2*HAK,tb-36); ctx.rect(AX-HAN,tb,2*HAN,CY-tb); ctx.clip();
+  ctx.fillStyle=osmColor(conc(disp.A[0])); ctx.fillRect(AX-HAK,36,2*HAK,CY-36);
+  for(let i=0;i<N;i++){
+    const y=rowTop(i)-off*ROW_H; ctx.fillStyle=osmColor(conc(disp.A[i])); ctx.fillRect(AX-HAK,y,2*HAK,ROW_H+0.6);
+    ctx.strokeStyle='rgba(30,20,60,.2)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(AX-HAK,y);ctx.lineTo(AX+HAK,y);ctx.stroke();
+  }
+  if(off>0){ ctx.fillStyle=osmColor(conc(disp.D[N-1])); ctx.fillRect(AX-HAK,CY-off*ROW_H,2*HAK,off*ROW_H+0.6); }
+  ctx.restore();
+  // עיקול
+  const dC=mixC(conc(disp.D[N-1]),off>0?conc(disp.D[N-2]):conc(disp.D[N-1]),off);
+  const aC=mixC(conc(disp.A[N-1]),off>0?conc(disp.D[N-1]):conc(disp.A[N-1]),off);
+  const bg=ctx.createLinearGradient(DX,0,AX,0);
+  bg.addColorStop(0,osmColor(dC)); bg.addColorStop(1,osmColor(aC));
+  ctx.save(); ctx.strokeStyle=bg; ctx.lineWidth=2*HD; ctx.lineCap='butt';
+  ctx.beginPath(); ctx.arc(BCX,CY,BR,0,Math.PI,false); ctx.stroke(); ctx.restore();
+}
+
+function drawRuler(){
+  const x0=16,w=30;
+  ctx.save(); ctx.beginPath(); ctx.roundRect(x0,MED.y,w,MED.h,10); ctx.clip();
+  ctx.fillStyle=medGradient(); ctx.fillRect(x0,MED.y,w,MED.h); ctx.restore();
+  ctx.save(); ctx.strokeStyle='#3b3556'; ctx.lineWidth=3; ctx.beginPath(); ctx.roundRect(x0,MED.y,w,MED.h,10); ctx.stroke(); ctx.restore();
+  txt('סרגל',31,66,{s:17,w:'700',c:'#3b3556'});
+  txt('אוסמולריות',48,84,{s:15,w:'700',c:'#3b3556'});
+  for(const i of [0,2,4,6,8,9]){
+    const y=rowTop(i)+ROW_H/2;
+    ctx.strokeStyle='#3b3556'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(x0+w,y); ctx.lineTo(x0+w+10,y); ctx.stroke();
+    txt(String(Math.round(disp.I[i])),x0+w+14,y,{s:21,w:'800',c:'#14121c',a:'left'});
+  }
+  txt('mOsm/L',31,MED.y+MED.h+16,{s:15,w:'700',c:'#3b3556'});
+}
+
+function vesselPath(){ctx.beginPath(); ctx.moveTo(VD,44); ctx.lineTo(VD,CY); ctx.arc(VCX,CY,VR,0,Math.PI,false); ctx.lineTo(VA,44);}
+function drawVessels(){
+  if(!vasaOn) return;
+  const g=ctx.createLinearGradient(0,36,0,MED.y+MED.h), H=MED.y+MED.h-36;
+  g.addColorStop(0,osmColor(BASE)); g.addColorStop((MED.y-36)/H,osmColor(BASE));
+  for(let i=0;i<N;i++){g.addColorStop(Math.min(1,(rowTop(i)+ROW_H/2-36)/H),osmColor(disp.I[i]));}
+  g.addColorStop(1,osmColor(disp.I[N-1]));
+  ctx.save(); ctx.lineJoin='round'; ctx.lineCap='butt';
+  vesselPath(); ctx.strokeStyle='#b71c1c'; ctx.lineWidth=32; ctx.stroke();
+  vesselPath(); ctx.strokeStyle=g; ctx.lineWidth=22; ctx.stroke();
+  ctx.restore();
+  // חצי זרימה בדם: יורד בימין, עולה בשמאל
+  if(showFlow){
+    const ph=(T*38)%50;
+    for(let y=44+ph;y<CY-6;y+=50) chevron(VD,y,Math.PI/2);
+    for(let y=CY-ph;y>56;y-=50) if(y<CY-6) chevron(VA,y,-Math.PI/2);
+    const a=((T*0.5)%1)*Math.PI; chevron(VCX+VR*Math.cos(a),CY+VR*Math.sin(a),Math.atan2(VR*Math.cos(a),-VR*Math.sin(a)));
+  }
+  txt('דם נכנס ↓',VD+4,58,{s:14,w:'800',c:'#b71c1c'});
+  txt('דם יוצא ↑',VA-4,58,{s:14,w:'800',c:'#b71c1c'});
+  txt('כלי דם (vasa recta)',VCX,84,{s:13,w:'800',c:'#b71c1c'});
+}
+
+function draw(){
+  ctx.setTransform(sc*dpr,0,0,sc*dpr,0,0);
+  ctx.clearRect(0,0,W0,H0);
+  const off=(tween&&tween.type==='advance')?advOff:0;
+  const pumpOn=tween&&tween.type==='pump', waterOn=tween&&tween.type==='water';
+  const pulse=0.5+0.5*Math.sin(T*6);
+  const pumpGlow=pumpOn?pulse:0, poreGlow=waterOn?pulse:0;
+
+  /* כותרות עמודות */
+  txt('תסנין יורד',322,16,{s:19,w:'700',c:'#0d47a1'});
+  txt('נוזל בין־תאי',522,16,{s:19,w:'700',c:'#4a148c'});
+  txt('תסנין עולה',770,16,{s:19,w:'700',c:'#bf360c'});
+
+  /* קליפה + מדולה */
+  const clipR=()=>{ctx.beginPath(); ctx.roundRect(MED.x,36,MED.w,ROW_Y0-36+MED.h,[30,30,46,46]);};
+  ctx.save(); clipR(); ctx.clip();
+  ctx.fillStyle=osmColor(BASE); ctx.fillRect(MED.x,36,MED.w,ROW_Y0-36);
+  ctx.fillStyle=medGradient(); ctx.fillRect(MED.x,MED.y,MED.w,MED.h);
+  ctx.restore();
+  ctx.save(); clipR(); ctx.strokeStyle='#5b5675'; ctx.lineWidth=3; ctx.stroke(); ctx.restore();
+  ctx.save(); ctx.setLineDash([10,6]); ctx.strokeStyle='#5b5675'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(MED.x,ROW_Y0); ctx.lineTo(MED.x+MED.w,ROW_Y0); ctx.stroke(); ctx.restore();
+  txt('קליפת הכליה (300)',MED.x+MED.w-10,50,{s:16,w:'700',c:'#3b3556',a:'right'});
+
+  drawTubes(off);
+  drawRuler();
+
+  /* חלקיקי נוזל בין-תאי */
+  for(let i=0;i<N;i++) for(const p of parts.iS[i]) saltDot(p.x+Math.sin(T*1.3+p.ph)*3,p.y+Math.cos(T*1.1+p.ph)*2,p.a*0.95);
+  drawVessels();
+  /* חלקיקי תסנין */
+  for(let i=0;i<N;i++){
+    for(const p of parts.dW[i]){const [x,y]=posD(i,p,off);drop(x,y,p.a);}
+    for(const p of parts.aW[i]){const [x,y]=posA(i,p,off);drop(x,y,p.a);}
+    for(const p of parts.dS[i]){const [x,y]=posD(i,p,off);saltDot(x,y,p.a);}
+    for(const p of parts.aS[i]){const [x,y]=posA(i,p,off);saltDot(x,y,p.a);}
+  }
+  if(incoming&&off>0){
+    for(const p of incoming.dW){const y=rowTop(0)-ROW_H+(p.u+off)*ROW_H;drop(DX+p.v*(HD-10),y,1);}
+    for(const p of incoming.dS){const y=rowTop(0)-ROW_H+(p.u+off)*ROW_H;saltDot(DX+p.v*(HD-10),y,1);}
+  }
+
+  /* קירות */
+  ctx.save();
+  ctx.strokeStyle='#1565c0'; ctx.lineWidth=4+3*poreGlow; ctx.setLineDash([9,7]);
+  if(poreGlow>0){ctx.shadowColor='#42a5f5';ctx.shadowBlur=18*poreGlow;}
+  ctx.beginPath(); ctx.moveTo(DX-HD,ROW_Y0);ctx.lineTo(DX-HD,CY);ctx.moveTo(DX+HD,ROW_Y0);ctx.lineTo(DX+HD,CY);ctx.stroke();
+  ctx.setLineDash([]); ctx.shadowBlur=0; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(DX-HD,36);ctx.lineTo(DX-HD,ROW_Y0);ctx.moveTo(DX+HD,36);ctx.lineTo(DX+HD,ROW_Y0);ctx.stroke();
+  ctx.restore();
+  const tb=rowTop(THICK);
+  ctx.save(); ctx.strokeStyle='#d84315'; ctx.lineWidth=6; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(AX-HAK,36);ctx.lineTo(AX-HAK,tb);ctx.moveTo(AX+HAK,36);ctx.lineTo(AX+HAK,tb);ctx.stroke();
+  ctx.lineWidth=4; ctx.setLineDash([2,8]); ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(AX-HAN,tb);ctx.lineTo(AX-HAN,CY);ctx.moveTo(AX+HAN,tb);ctx.lineTo(AX+HAN,CY);ctx.stroke();
+  ctx.setLineDash([]); ctx.lineWidth=6;
+  ctx.beginPath(); ctx.moveTo(AX-HAK,tb);ctx.lineTo(AX-HAN,tb);ctx.moveTo(AX+HAK,tb);ctx.lineTo(AX+HAN,tb);ctx.stroke();
+  ctx.restore();
+  ctx.save(); ctx.lineWidth=4;
+  for(const r of [BR-HD,BR+HD]){
+    ctx.strokeStyle='#1565c0'; ctx.setLineDash([9,7]); ctx.beginPath(); ctx.arc(BCX,CY,r,Math.PI/2,Math.PI,false); ctx.stroke();
+    ctx.strokeStyle='#d84315'; ctx.setLineDash([2,8]); ctx.lineCap='round'; ctx.beginPath(); ctx.arc(BCX,CY,r,0,Math.PI/2,false); ctx.stroke();
+  }
+  ctx.restore();
+  for(let i=0;i<THICK;i++){const y=rowTop(i)+ROW_H/2; pumpIcon(AX-HAK,y,-1,pumpGlow); pumpIcon(AX+HAK,y,1,pumpGlow);}
+
+  /* חיצי חומרים גדולים בזמן העברה */
+  if(pumpOn){
+    const from=S[cur], to=S[tween.p];
+    for(let i=0;i<N;i++){
+      const d=from.A[i].S-to.A[i].S; if(d<1) continue;
+      const k=Math.min(1.25,0.8+d/90), hw=aHalf(i), y=rowTop(i)+ROW_H/2, al=0.55+0.45*pulse;
+      bigArrow(AX+hw+26,y,1,'#ff8f00',al,k);
+    }
+    txt('NaCl יוצא',AX+HAK+130,rowTop(0)+ROW_H/2,{s:18,w:'800',c:'#bf360c',a:'left'});
+  }
+  if(waterOn){
+    const from=S[cur], to=S[tween.p];
+    for(let i=0;i<N;i++){
+      const d=from.D[i].W-to.D[i].W; if(d<0.004) continue;
+      const k=Math.min(1.3,0.85+d*3), y=rowTop(i)+ROW_H/2, al=0.55+0.45*pulse;
+      if(!vasaOn) bigArrow(DX-HD-28,y,-1,'#1e88ff',al,k); bigArrow(DX+HD+28,y,1,'#1e88ff',al,k);
+    }
+    txt('מים יוצאים',DX-HD-30,rowTop(0)-4,{s:19,w:'800',c:'#0d47a1',a:'right'});
+  }
+
+  /* חצי זרימה */
+  if(showFlow){
+    const ph=off*60;
+    for(let y=ROW_Y0-60+ph;y<CY-4;y+=60){ if(y>44)chevron(DX,y,Math.PI/2); }
+    for(let y=CY-ph;y>44;y-=60){ if(y<CY-4)chevron(AX,y,-Math.PI/2); }
+    for(let k=0;k<3;k++){ const a=((k+off)/3)*Math.PI; chevron(BCX-BR*Math.cos(a),CY+BR*Math.sin(a),Math.atan2(BR*Math.cos(a),BR*Math.sin(a))); }
+  }
+  txt('תסנין נכנס',360,62,{s:17,w:'700',c:'#0d47a1',a:'right'});
+  txt('מהאבובית הפרוקסימלית',360,84,{s:14,w:'600',c:'#3b3556',a:'right'});
+  txt('תסנין יוצא',900,62,{s:17,w:'700',c:'#bf360c',a:'right'});
+  txt('לאבובית הדיסטלית',900,84,{s:14,w:'600',c:'#3b3556',a:'right'});
+
+  /* חלקיקים במעבר דרך הדופן */
+  for(const t of transits){
+    const e=ease(t.t), x=t.x0+(t.x1-t.x0)*e, y=t.y0+(t.y1-t.y0)*e, a=(t.t>0.8&&!t.toVessel)?(1-t.t)/0.2:1;
+    if(t.kind==='salt')saltDot(x,y,a);else drop(x,y,a,1.5);
+  }
+  for(const b of bl){ // מים/מלח שנאספים בכלי הדם ועולים החוצה
+    const a=Math.min(1,(b.y-38)/25), x=b.x+Math.sin(T*3+b.ph)*1.5;
+    if(b.kind==='salt')saltDot(x,b.y,a);else drop(x,b.y,a,1.8);
+  }
+  for(const f of fades){ if(f.kind==='salt')saltDot(f.x,f.y,f.a);else drop(f.x,f.y,f.a); }
+
+  /* ערכי אוסמולריות */
+  if(showVals){
+    for(let i=0;i<N;i++){
+      const yc=rowTop(i)+ROW_H/2;
+      pill(String(Math.round(conc(disp.D[i]))),322,yc,'#0d47a1');
+      pill(String(Math.round(disp.I[i])),522,yc,'#4a148c');
+      pill(String(Math.round(conc(disp.A[i]))),770,yc,'#bf360c');
+    }
+  }
+
+  /* תוויות: זרוע יורדת (בצד שמאל) */
+  ctx.save(); ctx.fillStyle='rgba(255,255,255,.88)'; ctx.beginPath(); ctx.roundRect(MED.x+8,ROW_Y0+16*ROW_H/2*0+ROW_H*7.2,128,ROW_H*2.3,10); ctx.fill(); ctx.restore();
+  const ly=ROW_Y0+ROW_H*7.2;
+  txt('זרוע יורדת',MED.x+132,ly+16,{s:18,w:'800',c:'#0d47a1',a:'right'});
+  txt('חדירה מאוד למים',MED.x+132,ly+38,{s:15,c:'#0d47a1',a:'right'});
+  txt('כמעט אטומה ל־NaCl',MED.x+132,ly+58,{s:15,c:'#0d47a1',a:'right'});
+  txt('זרימה: למטה ↓',MED.x+132,ly+82,{s:15,w:'700',c:'#0d47a1',a:'right'});
+
+  /* תוויות שוליים ימין: עבה/דק + מונה מחזורים */
+  const bx=930, tx=1112, my1=(ROW_Y0+tb)/2, my2=(tb+CY)/2;
+  ctx.save(); ctx.strokeStyle='#d84315'; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(bx,ROW_Y0+4);ctx.lineTo(bx,tb-4);ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(bx,tb+4);ctx.lineTo(bx,CY-4);ctx.setLineDash([2,8]);ctx.lineCap='round';ctx.stroke(); ctx.restore();
+  txt('זרוע עולה',tx,my1-50,{s:18,w:'800',c:'#bf360c',a:'right'});
+  txt('מקטע עבה',tx,my1-28,{s:18,w:'800',c:'#bf360c',a:'right'});
+  txt('הובלה פעילה של NaCl',tx,my1-6,{s:15,c:'#bf360c',a:'right'});
+  txt('(משאבות, ATP)',tx,my1+13,{s:15,c:'#bf360c',a:'right'});
+  txt('כמעט אטום למים',tx,my1+32,{s:15,c:'#bf360c',a:'right'});
+  txt('זרימה: למעלה ↑',tx,my1+54,{s:15,w:'700',c:'#bf360c',a:'right'});
+  txt('מקטע דק',tx,tb+14,{s:18,w:'800',c:'#bf360c',a:'right'});
+  txt('מעבר פסיבי של NaCl',tx,tb+34,{s:15,c:'#bf360c',a:'right'});
+  txt('(ללא משאבות)',tx,tb+52,{s:15,c:'#bf360c',a:'right'});
+  txt('כמעט אטום למים',tx,tb+70,{s:15,c:'#bf360c',a:'right'});
+
+  /* מונה מחזור ושלב-משנה */
+  const p=tween?tween.p:cur, cyc=p===0?0:phaseCycle(p);
+  const names={pump:'1 · NaCl יוצא מהעולה',water:'2 · מים יוצאים מהיורדת',advance:'3 · התסנין מתקדם'};
+  ctx.save(); ctx.fillStyle='#ffffff'; ctx.strokeStyle='#2d2a6e'; ctx.lineWidth=3; ctx.beginPath(); ctx.roundRect(936,26,178,70,12); ctx.fill(); ctx.stroke(); ctx.restore();
+  txt(cyc===0?'מצב התחלתי':'מחזור '+cyc+' מתוך '+CN,1025,50,{s:20,w:'800',c:'#2d2a6e'});
+  const sub=(tween&&p>0)?names[tween.type]:(cur>0?'הושלם: '+names[phaseType(cur)].slice(4):'ללא שינוי');
+  txt(sub,1025,76,{s:14,w:'700',c:'#4b4760'});
+}
+
+/* ============ מצב חקר ============ */
+let exploring=false;
+function setParams(o){ PR={...PR,...o}; S=buildS(PR); jumpTo(0); updateExLabels(); shownStage=0; refreshText(); }
+const gradOf=ss=>{const I=ss[PF].I;return Math.max(...I)-Math.min(...I);};
+function updateExLabels(){
+  $('vE').textContent=PR.E+' mOsm/L'; $('vP').textContent=Math.round(PR.perm*100)+'%'; $('vF').textContent='×'+PR.flow;
+  const res='<div class="res">עכשיו: המפל הסופי הוא '+Math.round(gradOf(S))+' mOsm/L (ברירת מחדל: '+Math.round(gradOf(S_BASE))+').</div>';
+  $('wE').innerHTML='<ol><li>המשאבות מעבירות מלח נגד שיפוע ריכוז, ויש גבול להפרש שהן מצליחות לקיים בין התסנין לסביבה (בספרים כ־200).</li>'+
+   '<li>הפרש גדול יותר: כל מחזור מוסיף יותר מלח, והמפל גדל.</li><li>ב־0: אין משאבות, אין העברת מלח, ולכן אין מפל כלל.</li></ol>'+res;
+  $('wP').innerHTML='<ol><li>יציאת המים מהיורדת היא מה שמרכז את התסנין לפני העיקול.</li>'+
+   '<li>אם הדופן פחות חדירה, פחות מים יוצאים והתסנין נשאר דליל.</li>'+
+   '<li>בעולה הוא מביא פחות מלח שאפשר להעביר, ולכן אין הכפלה. נשאר רק ה־Single Effect.</li></ol>'+
+   '<p>בין 50% ל־120% כמעט אין שינוי: המודל מגיע לשיווי משקל גם ככה. נסו 0% או 10%.</p>'+res;
+  $('wF').innerHTML='<ol><li>זרימה מהירה: התסנין לא נשאר מספיק זמן בכל גובה. המשאבות והאוסמוזה משלימות רק חלק מהתהליך, ולכן המפל קטן יותר.</li>'+
+   '<li>זרימה איטית: יש זמן להשלים, אבל ההפרש מוגבל על ידי המשאבות, ולכן השינוי קטן.</li>'+
+   '<li>גם בכליה אמיתית זרימה מוגברת "שוטפת" את המפל.</li></ol>'+res;
+}
+$('pE').oninput=e=>setParams({E:+e.target.value});
+$('pP').oninput=e=>setParams({perm:+e.target.value/100});
+$('pF').oninput=e=>setParams({flow:+e.target.value});
+$('bDef').onclick=()=>{$('pE').value=DEF.E;$('pP').value=DEF.perm*100;$('pF').value=DEF.flow;setParams({...DEF});};
+$('bEnd').onclick=()=>{snap();jumpTo(PF);shownStage=0;refreshText();};
+$('bExplore').onclick=()=>{
+  exploring=!exploring; $('explore').hidden=!exploring; $('bExplore').setAttribute('aria-pressed',exploring);
+  $('bExplore').style.background=exploring?'#ffb300':''; $('bExplore').style.color=exploring?'#14121c':'';
+  if(!exploring&&(PR.E!==DEF.E||PR.perm!==DEF.perm||PR.flow!==DEF.flow)) $('bDef').click();
+};
+$('bVasa').onclick=()=>{
+  vasaOn=!vasaOn; bl=[]; $('vasaNote').hidden=!vasaOn; $('bVasa').setAttribute('aria-pressed',vasaOn);
+  $('bVasa').style.background=vasaOn?'#ef9a9a':''; $('bVasa').style.color=vasaOn?'#14121c':'';
+};
+updateExLabels();
+const mini=$('mini'), mctx=mini.getContext('2d'); let lastInfo='';
+function drawMini(){
+  if(!exploring) return;
+  const c=mctx; c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,380,250);
+  const cur_=disp.I, base=S_BASE[tween?Math.min(cur,PF):cur].I;
+  const maxV=Math.max(1000,...cur_,...base), x1=370, len=v=>4+(v-300)/(maxV-300)*290;
+  c.direction='rtl'; c.textBaseline='middle';
+  c.font='700 15px "Segoe UI",Arial'; c.fillStyle='#14121c'; c.textAlign='right'; c.fillText('פרופיל אוסמולריות לפי עומק',x1,14);
+  c.font='600 13px "Segoe UI",Arial'; c.fillStyle='#4b4760'; c.fillText('למעלה: ליד הקליפה',x1,32);
+  for(let i=0;i<N;i++){
+    const y=44+i*17, L=len(cur_[i]);
+    c.fillStyle=osmColor(cur_[i]); c.strokeStyle='#3b3556'; c.lineWidth=1.5;
+    c.fillRect(x1-L,y,L,13); c.strokeRect(x1-L,y,L,13);
+    c.fillStyle='#14121c'; c.font='700 12px "Segoe UI",Arial'; c.textAlign='right'; c.fillText(Math.round(cur_[i]),x1-L-4,y+7);
+    const bx=x1-len(base[i]); c.strokeStyle='#e65100'; c.lineWidth=3; c.setLineDash([3,2]); c.beginPath(); c.moveTo(bx,y-2); c.lineTo(bx,y+15); c.stroke(); c.setLineDash([]);
+  }
+  c.textAlign='right'; c.font='600 13px "Segoe UI",Arial'; c.fillStyle='#14121c'; c.fillText('פס: המצב הנוכחי',x1,226);
+  c.fillStyle='#e65100'; c.fillText('קו כתום מקווקו: ברירת המחדל באותו שלב',x1,243);
+  const g=Math.max(...cur_)-Math.min(...cur_), gb=Math.max(...base)-Math.min(...base);
+  const info='המפל במדולה (שיא פחות שפל): <b>'+Math.round(g)+'</b> mOsm/L. ברירת מחדל באותו שלב: '+Math.round(gb)+'.';
+  if(info!==lastInfo){lastInfo=info;$('exInfo').innerHTML=info;}
+}
+
+function loop(ts){
+  const dt=Math.min(0.05,(ts-(loop.last||ts))/1000); loop.last=ts;
+  if(!frozen) update(dt);
+  draw(); drawMini();
+  requestAnimationFrame(loop);
+}
+resize(); rebuild(); shownStage=0; refreshText();
+window.__cc={get bl(){return bl.length},tick(dt){if(!frozen)update(dt);draw();drawMini();},setParams,get S(){return S},get PR(){return PR},get cur(){return cur},get disp(){return disp},get frozen(){return frozen}};
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

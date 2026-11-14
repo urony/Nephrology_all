@@ -6,7 +6,15 @@ const AKI_SC = [
   { k: 'ren', t: '2️⃣ רנלי: בכליה עצמה', cause: 'למשל נמק צינוריתי (ATN) או רעילות של תרופה: הנפרונים נפגעים.', gfr: 25, urine: 'לא מרוכז: האבוביות הפגועות לא יכולות לרכז', us: 'גודל תקין, ולפעמים כליה מוגדלת מעט', fix: 'צריך זמן להחלמה. לא מספיק להחזיר נוזלים.' },
   { k: 'post', t: '3️⃣ פוסט-רנלי: אחרי הכליה', cause: 'למשל אבן, ערמונית מוגדלת או גידול: השתן לא יכול לצאת.', gfr: 35, urine: 'מעט מאוד או כלום', us: 'הידרונפרוזיס: אגן הכליה מורחב', fix: 'אם מסירים את החסימה, הכליה מחלימה.' },
 ];
+/* איורים אמיתיים (art/aki_*); אם חסרים, חוזרים לסכמה הישנה */
+const AKI_IMG = { ok: 'body_ckd', pre: 'aki_pre', ren: 'aki_renal', post: 'aki_post' };
+const AKI_CAP = { ok: 'כליה תקינה: דם זורם, הנפרונים בריאים והשתן יוצא.', pre: 'לפני הכליה: עורקי הכליה צרים וחיוורים, מגיע מעט דם.', ren: 'בכליה עצמה: הכליות נפוחות ודלקתיות.', post: 'אחרי הכליה: אבן בשופכן, ומעליה השופכן והאגן מורחבים.' };
 function akiSvg(k) {
+  const key = { ok: 'body_ckd', pre: 'aki_pre', ren: 'aki_renal', post: 'aki_post' }[k];
+  if (key && ART[key]) return `<figure class="fig" style="margin:0"><img class="zoomable" loading="lazy" src="${ART[key]}" alt="${AKI_CAP[k]}" style="width:100%;max-width:340px;display:block;margin:0 auto;border-radius:14px"><figcaption class="small muted" style="text-align:center">${AKI_CAP[k]} · לחיצה להגדלה</figcaption></figure>`;
+  return akiSvgOld(k);
+}
+function akiSvgOld(k) {
   const pre = k === 'pre', ren = k === 'ren', post = k === 'post';
   const art = pre ? 3 : 9, kcol = ren ? '#a24a4a' : '#c96a62';
   const spots = ren ? [[170, 120, 7], [200, 140, 8], [160, 160, 6], [195, 175, 7], [175, 195, 6]].map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}" fill="#5b2323"/>`).join('') : '';

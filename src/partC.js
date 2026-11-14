@@ -136,9 +136,9 @@ const CASES = [
     id: 'c10', name: 'ברוך', age: 59, sex: 'M', emoji: '🧓', dx: 'dial', diff: 3, urgent: true, art: 'dialysis',
     fixed: { CREA: 9.2, UREA: 210, K: 6.9, HCO3: 14, PH: 7.22, Hb: 8.9, CA: 8.0, PHOS: 7.5 }, dip: { prot: 2 }, uvol: 60, us: 'small',
     res: { ecg: 'גלי T גבוהים וחדים והרחבה של קומפלקס QRS: סימנים להיפרקלמיה קשה.', xray: 'נוזל בריאות (בצקת ריאות) והגדלה של צל הלב.' },
-    cc: 'קוצר נשימה חמור ובצקות. החמיץ שני טיפולי דיאליזה.', quip: 'מגיע בכיסא גלגלים ומתנצל: "היה לי חתונה… ואז עוד חתונה".',
+    cc: 'קוצר נשימה חמור ובצקות ברגליים.', quip: 'מגיע בכיסא גלגלים, עייף מאוד, ומתנצל שהוא "לא בטוח מה קורה לו".',
     vitals: { hr: 118, bp: '182/104', spo2: 88, temp: 36.9 },
-    hist: [['איזו מחלה יש לך, ואיזה טיפול אתה מקבל?', `"אי-ספיקת כליות כרונית כבר ארבע שנים. המודיאליזה שלוש פעמים בשבוע."`], ['מתי היה הטיפול האחרון?', `"לפני עשרה ימים. החמצתי שניים."`], ['מה אכלת ושתית בימים האחרונים?', `"בחתונות… הרבה מלח, פירות יבשים, בננות. ושתיתי המון."`], ['מה התלונות?', `"אין לי אוויר כשאני שוכב, הרגליים נפוחות, ואין כמעט שתן."`]],
+    hist: [['איזו מחלה יש לך, ואיזה טיפול אתה מקבל?', `"אי-ספיקת כליות כרונית כבר ארבע שנים. המודיאליזה שלוש פעמים בשבוע."`], ['איך נראתה השגרה שלך בשבועיים האחרונים?', `"מטורפת! חתונה של הנכדה, אחרי זה של הבת, ועוד אחת של חבר. הייתי עסוק כל היום, ואין לי זמן לעצמי."`], ['מה אכלת ושתית בימים האחרונים?', `"בחתונות… הרבה מלח, פירות יבשים, בננות. ושתיתי המון."`], ['מה התלונות?', `"אין לי אוויר כשאני שוכב, הרגליים נפוחות, ואין כמעט שתן."`]],
     exam: ['קוצר נשימה במנוחה, יושב זקוף', 'בצקות בולטות בשתי הרגליים', 'חרחורים בשתי הריאות (נוזל בריאות)', 'ורידי הצוואר נפוחים'],
     cause: ['מה הסיבה לפגיעה במצב?', [O('נוזלים ואשלגן הצטברו כי הדיאליזה לא סילקה אותם', 1, 'הדיאליזה מחליפה את תפקוד הכליה. בלעדיה מצטברים אוריאה, אשלגן ונוזלים.'), O('דלקת חיידקית בריאה עם חום, שיעול והפרשות', 0, 'אין חום. הקרפיטציות מצביעות על נוזל, וה-א.ק.ג מראה היפרקלמיה.'), O('התייבשות ממושכת עם ירידה בנפח הדם והלחץ בעורקים', 0, 'המטופל בצקתי עם נוזל בריאות.'), O('חסימה בדרכי השתן בגלל אבן או גידול שנתקעו בשופכן', 0, 'האולטרסאונד מראה כליות מצומקות מכרונית, לא הרחבת אגנים.')]],
     tx: [O('דיאליזה דחופה להוצאת נוזלים ואשלגן, והגנה על הלב', 1, 'דיאליזה מבוצעת בסיבוכים: היפרקלמיה, בצקת ריאות וחמצת. היפרקלמיה מסכנת בהפרעות קצב.'), O('עירוי נוזלים רב כדי לשפר את לחץ הדם והסינון', 0, 'לחץ הדם גבוה והמטופל עמוס נוזלים. עירוי יחמיר את בצקת הריאות.'), O('משתן חזק להגברת כמות השתן ושחרור הנוזלים', 0, 'הכליה כבר לא מגיבה. הטיפול הנכון הוא דיאליזה.'), O('שחרור הביתה עם הנחיות תזונה ומעקב אצל רופא המשפחה', 0, 'מצב מסכן חיים. נדרש טיפול דחוף.')],
@@ -177,67 +177,79 @@ function testHTML(c, p, k) {
 const SHIFTS = {
   s1: { id: 'c_s1', icon: '🌆', title: 'משמרת ערב: חמישה מטופלים', desc: 'חמישה מטופלים: מקרים קלאסיים.', t0: '20:30', ids: ['c1', 'c2', 'c3', 'c4', 'c5'] },
   s2: { id: 'c_s2', icon: '🌙', title: 'משמרת לילה: מקרים מאתגרים', desc: 'חמישה מטופלים: מקרים מאתגרים, כולל מצב חירום.', t0: '01:10', ids: ['c6', 'c7', 'c8', 'c9', 'c10'] },
+  s4: { id: 'c_s4', icon: '🔦', title: 'משמרת לילה: בלי תלונה מרכזית', desc: 'כל עשרת המטופלים בסדר אקראי, אבל בלי תלונה מרכזית. חייבים לקחת אנמנזה כדי להבין מה קרה.', t0: '02:30', ids: CASES.map(c => c.id), nocc: true },
   s3: { id: 'c_s3', icon: '🏆', title: 'מרתון: כל עשרת המטופלים', desc: 'כל עשרת המטופלים בסדר אקראי. משמרת ארוכה, לבעלי כושר!', t0: '08:00', ids: CASES.map(c => c.id) },
 };
 Object.values(SHIFTS).forEach(S => registerGame({
   id: S.id, part: 'C', icon: S.icon, title: S.title, desc: S.desc,
   learned: ['תמונה מלאה מורכבת מאנמנזה, בדיקה גופנית ובדיקות יחד, ולא ממדד אחד.', 'הסיבה לאי-ספיקה חשובה כמו האבחנה: הטיפול מכוון לגורם (נוזלים, חסימה, תרופה, סוכרת).', 'שתן מרוכז מצביע על פרה-רנלי, ושתן לא מרוכז על נזק לאבוביות או על כרונית. אולטרסאונד מבדיל חסימה וכרונית.', 'היפרקלמיה ובצקת ריאות במטופל דיאליזה הם מצב חירום שמצריך דיאליזה דחופה.'],
-  teacherNote: 'כל מטופל כולל אנמנזה, בדיקה גופנית, תוצאות בדיקות, אבחנה, סיבה וטיפול. ציון מטופל: אבחנה 50, סיבה 20, טיפול 30. הערכים בבדיקות להמחשה.',
-  mount(root, ctx) { runShift(root, ctx, S.ids, S.t0); },
+  teacherNote: S.nocc ? 'כמו המרתון, אבל בלי תלונה מרכזית: מוצגים רק גיל, מין ושורת קבלה כללית. התלונה מתגלה רק באנמנזה, ואי אפשר לאבחן לפני שפותחים אותה. ציון מטופל: אבחנה 50, סיבה 20, טיפול 30.' : 'כל מטופל כולל אנמנזה, בדיקה גופנית, תוצאות בדיקות, אבחנה, סיבה וטיפול. ציון מטופל: אבחנה 50, סיבה 20, טיפול 30. הערכים בבדיקות להמחשה. המטופלים שטופלו נשמרים במכשיר ומסומנים ב-✓.',
+  mount(root, ctx) { runShift(root, ctx, S.ids, S.t0, { nocc: !!S.nocc }); },
 }));
 
-function runShift(root, ctx, ids, t0 = '21:00') {
-  const list = shuffle(ids.map(id => CASES.find(c => c.id === id)));
-  let idx = 0; const results = [];
+/* זיכרון מטופלים שטופלו: נשמר במכשיר (localStorage) לפי משמרת, כדי שאפשר לצאת ולחזור */
+function seenLoad(key) { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { return null; } }
+function seenSave(key, list, results) { try { localStorage.setItem(key, JSON.stringify({ ids: list.map(c => c.id), res: results.map(r => r ? { pts: r.pts, dx: r.dx, cause: r.cause, tx: r.tx } : null) })); } catch (e) { } }
+function seenClear(key) { try { localStorage.removeItem(key); } catch (e) { } }
+function runShift(root, ctx, ids, t0 = '21:00', opt = {}) {
+  const NIGHT = !!opt.nocc, SEEN_KEY = 'nephrolab_seen_' + (ctx.game ? ctx.game.id : 'x');
+  const sv = seenLoad(SEEN_KEY);
+  const okSaved = sv && sv.ids && sv.ids.length === ids.length && ids.every(i => sv.ids.includes(i));
+  const list = okSaved ? sv.ids.map(id => CASES.find(c => c.id === id)) : shuffle(ids.map(id => CASES.find(c => c.id === id)));
+  let idx = 0; const results = list.map((c, k) => okSaved && sv.res[k] ? Object.assign({ c }, sv.res[k]) : null);
+  if (okSaved) { const first = results.findIndex(r => !r); idx = first < 0 ? 0 : first; }
+  const hadSaved = okSaved && results.some(Boolean);
   const doneN = () => results.filter(Boolean).length;
   const host = el('<div></div>'); root.appendChild(host);
-  root.insertAdjacentHTML('afterbegin', say('ברוכים הבאים למיון! 🚑 לכל מטופל: קחו אנמנזה, בצעו בדיקה גופנית, עיינו בבדיקות, ואז אבחנו וטפלו.', 'happy'));
+  root.insertAdjacentHTML('afterbegin', say(NIGHT ? 'משמרת לילה 🌙 אין תלונה מרכזית: כל מה שיש לכם הוא גיל ומין. קחו אנמנזה כדי להבין מה קרה, ורק אז אבחנו.' : 'ברוכים הבאים למיון! 🚑 לכל מטופל: קחו אנמנזה, בצעו בדיקה גופנית, עיינו בבדיקות, ואז אבחנו וטפלו.', 'happy') + (hadSaved ? '<div class="explain small">✓ מסומנים המטופלים שכבר טיפלתם בהם (נשמר במכשיר). אפשר להמשיך מהמטופל הבא.</div>' : ''));
   const vit = (k, v, bad) => `<div><b style="${bad ? 'color:var(--bad)' : ''}">${v}</b>${k}</div>`;
   function patient() {
     if (idx >= list.length) { summary(); return; }
     const cur = idx;
     const c = list[idx], p = caseLabs(c), st = { dx: null, cause: null, tx: null }; host.innerHTML = '';
     const v = c.vitals;
-    const head = el(`<div><div class="row sp small muted"><span>מטופל ${idx + 1} מתוך ${list.length}</span><span>🕘 ${erClock(t0, idx)} · חדר מיון</span></div><div class="small" style="margin:8px 0 0;color:var(--muted)">👩‍⚕️ אחות: "${pick(NURSE)}"</div><div class="bar" style="margin:8px 0"><i style="width:${100 * doneN() / list.length}%"></i></div></div>`);
+    const head = el(`<div><div class="row sp small muted"><span>מטופל ${idx + 1} מתוך ${list.length}</span><span>🕘 ${erClock(t0, idx)} · חדר מיון</span></div><div class="nurse">👩‍⚕️ <b>אחות:</b> "${pick(NURSE)}"</div><div class="bar" style="margin:8px 0"><i style="width:${100 * doneN() / list.length}%"></i></div></div>`);
     head.appendChild(jumpBar(list.length, idx, list.map((_, k) => !!results[k]), j => { idx = j; patient(); window.scrollTo(0, 0); }));
-    const card = el(`<div class="card"><div class="patient-head">${ART['patient_' + c.id] ? `<img class="avatar" src="${ART['patient_' + c.id]}" alt="${c.name}">` : `<div class="avatar">${c.emoji}</div>`}<div><h3 style="margin:0">${c.name}, ${c.sex === 'F' ? 'בת' : 'בן'} ${c.age}</h3><div class="muted small">${c.quip}</div></div></div>
-      <p style="margin:10px 0 4px"><b>תלונה:</b> ${c.cc}</p>
+    const card = el(`<div class="card"><div class="patient-head">${ART['patient_' + c.id] ? `<img class="avatar" src="${ART['patient_' + c.id]}" alt="${c.name}" title="לחצו להגדלה">` : `<div class="avatar">${c.emoji}</div>`}<div><h3 style="margin:0">${c.name}, ${c.sex === 'F' ? 'בת' : 'בן'} ${c.age}</h3>${NIGHT ? '' : `<div class="muted small">${c.quip}</div>`}</div></div>
+      ${NIGHT ? '<div class="cc cc0"><span class="cct">סיבת הפנייה</span>הגיע/ה למיון בתחושה לא טובה. הפרטים יתבררו רק בשיחה.</div>' : `<div class="cc"><span class="cct">תלונה מרכזית</span>${c.cc}</div>`}
       <div class="vitals">${vit('דופק', v.hr, v.hr > 100)}${vit('לחץ דם', v.bp, false)}${vit('סטורציה', v.spo2 + '%', v.spo2 < 94)}${vit('חום', v.temp, v.temp >= 38)}</div>
       ${IS_TEACHER ? `<div class="tnote"><b>מפתח:</b> אבחנה – ${CDX[c.dx].n}${c.urgent ? ' · <b>חירום</b>' : ''} · נקודת לימוד: ${c.teach}</div>` : ''}</div>`);
-    const tabs = el(`<div class="tabs"><button data-t="talk" class="on">💬 אנמנזה</button><button data-t="exam">🩺 בדיקה גופנית</button><button data-t="tests">🧪 בדיקות</button><button data-t="dx">✅ אבחנה וטיפול</button></div>`);
-    const P = { talk: el('<div class="card"></div>'), exam: el('<div class="card hide"></div>'), tests: el('<div class="card hide"></div>'), dx: el('<div class="card hide"></div>') };
+    const tabs = el(`<div class="tabs"><button data-t="talk"${NIGHT ? '' : ' class="on"'}>💬 אנמנזה</button><button data-t="exam">🩺 בדיקה גופנית</button><button data-t="tests">🧪 בדיקות</button><button data-t="dx">✅ אבחנה וטיפול</button></div>`);
+    const P = { talk: el(NIGHT ? '<div class="card hide"></div>' : '<div class="card"></div>'), exam: el('<div class="card hide"></div>'), tests: el('<div class="card hide"></div>'), dx: el('<div class="card hide"></div>') };
     host.append(head, card, tabs, ...Object.values(P));
+    if (NIGHT) host.insertBefore(el('<div class="explain" id="nightnote">🔦 אין תלונה מרכזית. פתחו את לשונית <b>אנמנזה</b> כדי לשמוע מה קרה. אי אפשר לאבחן לפני כן.</div>'), tabs);
+    st.talked = !NIGHT;
     // אנמנזה
-    P.talk.innerHTML = `<button class="btn teal block" id="doan">💬 קחו אנמנזה</button><div id="anl" class="hide" style="margin-top:12px"><p class="muted small">מה המטופל/ת מספר/ת:</p>${c.hist.map(h => `<div class="qa"><span class="muted small">${h[0]}</span><br>${h[1]}</div>`).join('')}</div>`;
-    $('#doan', P.talk).onclick = () => { $('#anl', P.talk).classList.remove('hide'); $('#doan', P.talk).classList.add('hide'); };
+    const histAll = NIGHT ? [['מה הביא אותך למיון?', `"${c.cc}"`]].concat(c.hist) : c.hist;
+    P.talk.innerHTML = `<p class="muted small" style="margin-top:0">מה המטופל/ת מספר/ת:</p>${histAll.map(h => `<div class="qa"><span class="muted small">${h[0]}</span><br>${h[1]}</div>`).join('')}`;
     // בדיקה גופנית
-    P.exam.innerHTML = `<button class="btn teal block" id="doex">🩺 בצעו בדיקה גופנית</button>${ART['exam_' + c.id] ? `<figure id="exi" class="hide" style="margin:12px 0 0"><img src="${ART['exam_' + c.id]}" alt="ממצאי הבדיקה הגופנית" style="width:100%;border-radius:14px"><figcaption class="small muted" style="margin-top:6px">${EXAMCAP[c.id] || ''}</figcaption></figure>` : ''}<ul id="exl" class="hide" style="padding-inline-start:20px;margin:12px 0 0">${c.exam.map(x => `<li style="margin:6px 0">${x}</li>`).join('')}</ul>`;
-    $('#doex', P.exam).onclick = () => { const fi = $('#exi', P.exam); if (fi) fi.classList.remove('hide'); $('#exl', P.exam).classList.remove('hide'); $('#doex', P.exam).classList.add('hide'); };
+    P.exam.innerHTML = `${ART['exam_' + c.id] ? `<figure id="exi" style="margin:0 0 12px"><img class="zoomable" src="${ART['exam_' + c.id]}" alt="ממצאי הבדיקה הגופנית" style="width:100%;border-radius:14px"><figcaption class="small muted" style="margin-top:6px">${EXAMCAP[c.id] || ''}</figcaption></figure>` : ''}<ul id="exl" style="padding-inline-start:20px;margin:0">${c.exam.map(x => `<li style="margin:6px 0">${x}</li>`).join('')}</ul>`;
+    
     // בדיקות
     const shown = Object.keys(TESTS).filter(k => c.must.includes(k) || c.useful.includes(k));
-    P.tests.innerHTML = `<button class="btn teal block" id="dobl">🧪 קבלו תוצאות בדיקות</button><div id="res" class="hide" style="margin-top:12px">${shown.map(k => `<div class="slip"><b>${TESTS[k].ic} ${TESTS[k].n}</b>${testHTML(c, p, k)}</div>`).join('')}</div>`;
-    $('#dobl', P.tests).onclick = () => { $('#res', P.tests).classList.remove('hide'); $('#dobl', P.tests).classList.add('hide'); };
+    P.tests.innerHTML = `<div id="res">${shown.map(k => `<div class="slip"><b>${TESTS[k].ic} ${TESTS[k].n}</b>${testHTML(c, p, k)}</div>`).join('')}</div>`;
     // אבחנה
     P.dx.innerHTML = '<p class="muted small">אחרי שאספתם מספיק מידע: אבחנו. אפשר לחזור ללשוניות הקודמות בכל עת.</p>';
     const dxHost = el('<div></div>'); P.dx.appendChild(dxHost);
     const dxBtn = el('<button class="btn primary block" id="startdx">אני מוכן/ה לאבחן ←</button>'); P.dx.appendChild(dxBtn);
     dxBtn.onclick = () => {
+      if (!st.talked) { toast('קודם קחו אנמנזה: פתחו את לשונית "אנמנזה"'); return; }
       dxBtn.remove();
       mcq(dxHost, { q: 'מהי האבחנה?', tag: CDX[c.dx].tag,
-        options: CDX_KEYS.map(k => ({ t: `${CDX[k].ic} ${CDX[k].s}`, ok: k === c.dx, tag: CDX[k].tag })),
+        options: CDX_KEYS.map(k => ({ t: `${CDX[k].ic} ${CDX[k].s}`, ok: k === c.dx, tag: CDX[k].tag, why: k === c.dx ? (KEYWHY[k] || '') : '' })),
         onDone: ok => { st.dx = ok; const b2 = el('<div style="margin-top:16px"></div>'); dxHost.appendChild(b2); mcq(b2, { q: c.cause[0], tag: 'cause', options: c.cause[1], onDone: ok2 => { st.cause = ok2; const b3 = el('<div style="margin-top:16px"></div>'); dxHost.appendChild(b3); mcq(b3, { q: 'מה הטיפול המתאים?', tag: c.urgent ? 'urgent' : 'treatment', options: c.tx, onDone: ok3 => { st.tx = ok3; done(); } }); } }); } });
     };
     function done() {
       const pts = (st.dx ? 50 : 0) + (st.cause ? 20 : 0) + (st.tx ? 30 : 0);
-      if (!results[cur]) results[cur] = { c, pts, dx: st.dx, cause: st.cause, tx: st.tx };
+      if (!results[cur]) { results[cur] = { c, pts, dx: st.dx, cause: st.cause, tx: st.tx }; seenSave(SEEN_KEY, list, results); }
       const left = list.map((_, k) => k).filter(k => !results[k]); const nxt = left.find(k => k > cur); const last = left.length === 0;
       const sm = el(`<div class="card" style="margin-top:14px"><h3>סיכום המטופל: ${pts}/100</h3>
         <div class="kpi"><div><b>${st.dx ? 50 : 0}/50</b><span>אבחנה</span></div><div><b>${st.cause ? 20 : 0}/20</b><span>סיבה</span></div><div><b>${st.tx ? 30 : 0}/30</b><span>טיפול</span></div></div>
-        <div class="explain row" style="flex-wrap:nowrap">${c.art && ART['case_' + c.art] ? `<img src="${ART['case_' + c.art]}" alt="" style="width:84px;height:auto;flex:0 0 84px">` : ''}<span>📌 ${c.teach}</span></div>${pts >= 70 ? expertCard(pts === 100 ? 'great' : 'good') : ''}<button class="btn primary block" id="nx" style="margin-top:12px">${last ? 'לסיכום המשמרת 🏁' : 'המטופל הבא ←'}</button></div>`);
+        <div class="explain row" style="flex-wrap:nowrap">${c.art && ART['case_' + c.art] ? `<img class="zoomable" src="${ART['case_' + c.art]}" alt="" style="width:84px;height:auto;flex:0 0 84px">` : ''}<span>📌 ${c.teach}</span></div>${pts >= 70 ? expertCard(pts === 100 ? 'great' : 'good') : ''}<button class="btn primary block" id="nx" style="margin-top:12px">${last ? 'לסיכום המשמרת 🏁' : 'המטופל הבא ←'}</button></div>`);
       P.dx.appendChild(sm); sm.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       $('#nx', sm).onclick = () => { idx = last ? list.length : (nxt != null ? nxt : left[0]); patient(); window.scrollTo(0, 0); };
     }
-    tabs.addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; $$('button', tabs).forEach(x => x.classList.toggle('on', x === b)); Object.keys(P).forEach(k => P[k].classList.toggle('hide', k !== b.dataset.t)); });
+    tabs.addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; if (b.dataset.t === 'talk') { st.talked = true; const nn = $('#nightnote', host); if (nn) nn.remove(); } $$('button', tabs).forEach(x => x.classList.toggle('on', x === b)); Object.keys(P).forEach(k => P[k].classList.toggle('hide', k !== b.dataset.t)); });
   }
   function summary() {
     const rs = results.filter(Boolean); const avg = Math.round(rs.reduce((s, r) => s + r.pts, 0) / rs.length);
@@ -246,6 +258,7 @@ function runShift(root, ctx, ids, t0 = '21:00') {
       <table class="lab"><thead><tr><th>מטופל</th><th>אבחנה</th><th>ניקוד</th></tr></thead><tbody>${rs.map(r => `<tr><td>${r.c.emoji} ${r.c.name}</td><td>${r.dx ? '✅' : '❌'} ${CDX[r.c.dx].s}</td><td class="v">${r.pts}</td></tr>`).join('')}</tbody></table>
       <button class="btn block" id="sharebtn" style="margin-top:12px">📤 שליחת התוצאות למורה</button></div>`;
     const per = rs.filter(r => r.pts === 100).length, rk = diagRank(per, rs.length); ctx.rank = rk;
+    seenClear(SEEN_KEY);
     ctx.finish(avg, rankCard(rk, per, rs.length) + extra);
     const sb = $('#sharebtn', root); if (sb) sb.onclick = shareResultsModal;
   }
@@ -263,9 +276,9 @@ function teacherShiftView(g, body) {
     resetLabNote();
     const shown = Object.keys(TESTS).filter(k => c.must.includes(k) || c.useful.includes(k));
     host.insertAdjacentHTML('beforeend', `<div class="card"><div class="patient-head">${ART['patient_' + c.id] ? `<img class="avatar" src="${ART['patient_' + c.id]}" alt="${c.name}">` : `<div class="avatar">${c.emoji}</div>`}<div><h3 style="margin:0">מטופל ${cur + 1} מתוך ${cases.length}: ${c.name}, ${c.sex === 'F' ? 'בת' : 'בן'} ${c.age}</h3><div class="muted small">${c.quip}</div></div></div>
-      <p style="margin:10px 0 4px"><b>תלונה:</b> ${c.cc}</p><p class="small muted">דופק ${v.hr} · לחץ דם ${v.bp} · סטורציה ${v.spo2}% · חום ${v.temp}</p>
+      <div class="cc"><span class="cct">${S.nocc ? 'תלונה (במשמרת הזו מתגלה רק באנמנזה)' : 'תלונה מרכזית'}</span>${c.cc}</div><p class="small muted">דופק ${v.hr} · לחץ דם ${v.bp} · סטורציה ${v.spo2}% · חום ${v.temp}</p>
       <div class="explain good"><b>האבחנה:</b> ${CDX[c.dx].n}${c.urgent ? ' · <b>🚨 חירום</b>' : ''}<div class="small">📌 ${c.teach}</div>${c.note ? `<div class="small muted">הערה: ${c.note}</div>` : ''}</div></div>
-      <div class="card"><h3>💬 אנמנזה</h3>${c.hist.map(h => `<div class="qa"><span class="muted small">${h[0]}</span><br>${h[1]}</div>`).join('')}</div>
+      <div class="card"><h3>💬 אנמנזה</h3>${(S.nocc ? [['מה הביא אותך למיון?', '"' + c.cc + '"']].concat(c.hist) : c.hist).map(h => `<div class="qa"><span class="muted small">${h[0]}</span><br>${h[1]}</div>`).join('')}</div>
       <div class="card"><h3>🩺 בדיקה גופנית</h3><ul style="padding-inline-start:20px;margin:0">${c.exam.map(x => `<li style="margin:6px 0">${x}</li>`).join('')}</ul></div>
       <div class="card"><h3>🧪 בדיקות</h3><p class="small muted">בדיקות חיוניות מסומנות ב-⭐:</p>${shown.map(k => `<div class="slip"><b>${TESTS[k].ic} ${TESTS[k].n}${c.must.includes(k) ? ' ⭐' : ''}</b>${testHTML(c, p, k)}</div>`).join('')}</div>
       <div class="card"><h3>✅ אבחנה, סיבה וטיפול</h3>${optsKey('מהי האבחנה?', CDX_KEYS.map(k => ({ t: CDX[k].s, ok: k === c.dx })))}${optsKey(c.cause[0], c.cause[1])}${optsKey('מה הטיפול המתאים?', c.tx)}</div>`);

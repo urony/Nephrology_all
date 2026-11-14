@@ -3,16 +3,16 @@
    קואורדינטות הנקודות באחוזים מגודל התמונה (x מהשמאל, y מלמעלה), לכן מתאימות לכל מסך.
    l = שם בעברית, e = שם באנגלית, ha / ea = שמות נוספים שמתקבלים בהקלדה (עברית / אנגלית). */
 const LABEL_SETS = {
-  nephron: { img: 'anat_nephron', ratio: 1000 / 1500, maxW: 360, title: 'הנפרון', tag: 'nephron_parts', parts: [
-    { l: 'פקעית (גלומרולוס)', e: 'Glomerulus', ha: ['גלומרולוס', 'פקעית'], x: 21.5, y: 15.5, d: 'כדור של נימי דם שבו מתבצע הסינון.' },
-    { l: 'קופסית באומן', e: "Bowman's capsule", ea: ['bowman capsule', 'bowmans capsule'], x: 12.5, y: 21, d: 'הכוס הדו-שכבתית שעוטפת את הפקעית ואוספת את התסנין.' },
-    { l: 'עורקון מביא', e: 'Afferent arteriole', ea: ['afferent'], x: 4.5, y: 12.5, d: 'כלי הדם הרחב שמביא דם אל הפקעית.' },
-    { l: 'עורקון מוציא', e: 'Efferent arteriole', ea: ['efferent'], x: 31.5, y: 6, d: 'כלי הדם הצר שיוצא מהפקעית, ומוביל דם אל הנימים הפרי-טובולריים.' },
-    { l: 'אבובית מקורבת', e: 'Proximal convoluted tubule (PCT)', ea: ['proximal tubule', 'pct', 'proximal convoluted tubule'], ha: ['אבובית מקורבת', 'אבוב מקורב'], x: 36, y: 22, d: 'האבובית המפותלת הראשונה, בקליפה: נספגים בה רוב המים והמלחים והגלוקוז.' },
-    { l: 'לולאת הנלה', e: 'Loop of Henle', ea: ['henle loop', 'loop of henles', 'henle'], ha: ['לולאת הנלה', 'הנלה'], x: 56.5, y: 92, d: 'אבובית בצורת סיכת שיער שיורדת אל הלשד וחוזרת: יוצרת את מפל הריכוז בלשד.' },
-    { l: 'אבובית מרוחקת', e: 'Distal convoluted tubule (DCT)', ea: ['distal tubule', 'dct', 'distal convoluted tubule'], ha: ['אבובית מרוחקת', 'אבוב מרוחק'], x: 68, y: 18.5, d: 'האבובית המפותלת השנייה, בקליפה: כאן פועלים ADH ואלדוסטרון.' },
-    { l: 'צינור מאסף', e: 'Collecting duct', ea: ['collecting tubule'], ha: ['צינור מאסף', 'צינור מאסף'], x: 91, y: 55, d: 'הצינור הישר שאוסף שתן מכמה נפרונים ומוביל אותו אל האגן.' },
-    { l: 'רשת נימים פרי-טובולרית', e: 'Peritubular capillaries', ea: ['peritubular capillary', 'peritubular capillary network'], ha: ['נימים פרי-טובולריים', 'רשת נימים פרי טובולרית', 'נימים פרי טובולריים'], x: 47.2, y: 52, d: 'כלי דם דקים שמקיפים את האבוביות וקולטים את מה שנספג חזרה.' },
+  nephron: { img: 'nephron_real', ratio: 760 / 1140, maxW: 360, title: 'הנפרון', tag: 'nephron_parts', parts: [
+    { l: 'פקעית (גלומרולוס)', e: 'Glomerulus', ha: ['גלומרולוס', 'פקעית'], x: 24, y: 25, d: 'כדור של נימי דם שבו מתבצע הסינון.' },
+    { l: 'קופסית באומן', e: "Bowman's capsule", ea: ['bowman capsule', 'bowmans capsule'], x: 14.6, y: 30.6, d: 'הכוס הדו-שכבתית שעוטפת את הפקעית ואוספת את התסנין.' },
+    { l: 'עורקון מביא', e: 'Afferent arteriole', ea: ['afferent'], x: 6, y: 15.6, d: 'כלי הדם הרחב שמביא דם אל הפקעית.' },
+    { l: 'עורקון מוציא', e: 'Efferent arteriole', ea: ['efferent'], x: 32, y: 12.4, d: 'כלי הדם הצר שיוצא מהפקעית, ומוביל דם אל הנימים הפרי-טובולריים.' },
+    { l: 'אבובית מקורבת', e: 'Proximal convoluted tubule (PCT)', ea: ['proximal tubule', 'pct', 'proximal convoluted tubule'], ha: ['אבובית מקורבת', 'אבוב מקורב'], x: 46, y: 29, d: 'האבובית המפותלת הראשונה, בקליפה: נספגים בה רוב המים והמלחים והגלוקוז.' },
+    { l: 'לולאת הנלה', e: 'Loop of Henle', ea: ['henle loop', 'loop of henles', 'henle'], ha: ['לולאת הנלה', 'הנלה'], x: 47, y: 86.6, d: 'אבובית בצורת סיכת שיער שיורדת אל הלשד וחוזרת: יוצרת את מפל הריכוז בלשד.' },
+    { l: 'אבובית מרוחקת', e: 'Distal convoluted tubule (DCT)', ea: ['distal tubule', 'dct', 'distal convoluted tubule'], ha: ['אבובית מרוחקת', 'אבוב מרוחק'], x: 74, y: 20, d: 'האבובית המפותלת השנייה, בקליפה: כאן פועלים ADH ואלדוסטרון.' },
+    { l: 'צינור מאסף', e: 'Collecting duct', ea: ['collecting tubule'], ha: ['צינור מאסף', 'צינור מאסף'], x: 86, y: 58.6, d: 'הצינור הישר שאוסף שתן מכמה נפרונים ומוביל אותו אל האגן.' },
+    { l: 'רשת נימים פרי-טובולרית', e: 'Peritubular capillaries', ea: ['peritubular capillary', 'peritubular capillary network'], ha: ['נימים פרי-טובולריים', 'רשת נימים פרי טובולרית', 'נימים פרי טובולריים'], x: 36, y: 65, d: 'כלי דם דקים שמקיפים את האבוביות וקולטים את מה שנספג חזרה.' },
   ] },
   kidney: { img: 'anat_kidney', ratio: 1, maxW: 380, title: 'חתך הכליה', tag: 'kidney_parts', parts: [
     { l: 'קפסולה', e: 'Renal capsule', ea: ['capsule', 'kidney capsule'], ha: ['קופסית הכליה', 'קופסית', 'קפסולת הכליה'], x: 11.5, y: 50, d: 'מעטפת דקה של רקמת חיבור שעוטפת את הכליה.' },

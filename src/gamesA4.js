@@ -37,20 +37,31 @@ registerGame({
   },
 });
 
+/* מריץ את כל השאלות ברצף של סבבים: בסוף כל סבב כפתור "עוד שאלות" עד שנגמרו */
+function mixRun(root, ctx, pool, n) {
+  const all = shuffle(pool); let pos = 0;
+  const ctx2 = Object.assign({}, ctx, { finish: (pct, extra) => { ctx.finish(pct, extra); const mb = $('#moreq', root); if (mb) mb.onclick = () => { root.innerHTML = ''; round(); window.scrollTo(0, 0); }; } });
+  function round() {
+    const chunk = all.slice(pos, pos + n); pos += n; const left = all.length - pos;
+    const after = left > 0 ? `<div class="card center"><b>עברתם על ${pos} מתוך ${all.length} שאלות.</b><button class="btn primary block" id="moreq" style="margin-top:10px">➡ עוד ${Math.min(n, left)} שאלות (נשארו ${left})</button></div>` : `<div class="card center">🎉 עברתם על כל ${all.length} השאלות של הנושא!</div>`;
+    runQuiz(root, ctx2, chunk, { after });
+  }
+  round();
+}
 /* תרגול רב-ברירה מעורב: לפי נושא, או מכל חלק א׳. אפשר לשלוח לתלמידים קישור ישיר, למשל #/g/a_mix_all */
 const MIXES = [
-  { id: 'a_mix_basics', sec: 'basics', icon: '🎯', title: 'תרגול מעורב: הבסיס', desc: 'שאלות רב-ברירה מעורבות על מבנה הכליה, הנפרון וסינון', n: 10 },
-  { id: 'a_mix_balance', sec: 'balance', icon: '🎯', title: 'תרגול מעורב: ויסות ואיזון', desc: 'שאלות רב-ברירה מעורבות על ADH, RAAS, חומצה-בסיס והורמונים', n: 10 },
-  { id: 'a_mix_disease', sec: 'disease', icon: '🎯', title: 'תרגול מעורב: מחלות וטיפולים', desc: 'שאלות רב-ברירה מעורבות על אי-ספיקה, אבנים, זיהומים ודיאליזה', n: 10 },
-  { id: 'a_mix_all', sec: 'review', icon: '🎲', title: 'תרגול מעורב: הכול ביחד', desc: 'עשרים שאלות מעורבות מכל נושאי חלק א׳, בלי לדעת מראש מאיזה נושא', n: 20 },
+  { id: 'a_mix_basics', sec: 'basics', icon: '🎯', title: 'תרגול מעורב: הבסיס', desc: 'כל שאלות הרב-ברירה על מבנה הכליה, הנפרון וסינון, בסדר אקראי', n: 20 },
+  { id: 'a_mix_balance', sec: 'balance', icon: '🎯', title: 'תרגול מעורב: ויסות ואיזון', desc: 'כל שאלות הרב-ברירה על ADH, RAAS, חומצה-בסיס והורמונים, בסדר אקראי', n: 20 },
+  { id: 'a_mix_disease', sec: 'disease', icon: '🎯', title: 'תרגול מעורב: מחלות וטיפולים', desc: 'כל שאלות הרב-ברירה על אי-ספיקה, אבנים, זיהומים ודיאליזה, בסדר אקראי', n: 20 },
+  { id: 'a_mix_all', sec: 'review', icon: '🎲', title: 'תרגול מעורב: הכול ביחד', desc: 'כל שאלות הרב-ברירה של חלק א׳ בסדר אקראי, בלי לדעת מראש מאיזה נושא', n: 20 },
 ];
 MIXES.forEach(m => registerGame({
   id: m.id, part: 'A', sec: m.sec, icon: m.icon, title: m.title, desc: m.desc,
-  teacherNote: 'חידון רב-ברירה שנבנה אקראית מכל השאלות של הנושא, בסדר שונה בכל כניסה. לתרגול חוזר ולשליחה לתלמידים בקישור ישיר.',
+  teacherNote: 'חידון רב-ברירה שכולל את כל השאלות של הנושא, בסדר אקראי ובתשובות מעורבבות, ב-20 שאלות בכל פעם. בסוף כל סבב יש כפתור "עוד שאלות" עד שהתלמיד עובר על הכול. קישור ישיר (בדף המורה, "שאלות רב-ברירה בלבד") שולח לתלמיד רק את השאלות, בלי המשחקים והאיורים.',
   learned: ['תרגול מעורב מחזק זיכרון לטווח ארוך יותר מתרגול נושא אחרי נושא.', 'שאלות בסדר לא צפוי מראות מה באמת יושב.'],
   mount(root, ctx) {
-    root.insertAdjacentHTML('afterbegin', say('שאלות מעורבות, בלי לדעת מראש מאיזה נושא. הסדר והתשובות מתערבבים בכל פעם.', 'wink'));
     const pool = m.id === 'a_mix_all' ? quizPool() : quizPool(m.sec);
-    runQuiz(root, ctx, shuffle(pool).slice(0, m.n));
+    root.insertAdjacentHTML('afterbegin', say(`כאן כל ${pool.length} שאלות הרב-ברירה של הנושא, בסדר אקראי. הסדר והתשובות מתערבבים בכל פעם. נעבור עליהן ב-${m.n} בכל סבב.`, 'wink'));
+    mixRun(root, ctx, pool, m.n);
   },
 }));

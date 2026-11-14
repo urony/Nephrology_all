@@ -52,6 +52,24 @@ registerGame({
 });
 
 /* ---------- 12. GFR וקריאטינין ---------- */
+/* שלב פתיחה: מה זה GFR? 20 נפרונים, וסליידר שמראה כמה מהם עובדים */
+function gfrIntro(box, done) {
+  let n = 20; const host = el('<div class="card"></div>'); box.appendChild(host);
+  function draw() {
+    const pct = Math.round(100 * n / 20), ml = Math.round(125 * n / 20), cr = Math.round(100 * n / 20);
+    host.innerHTML = `<p class="instr">GFR = כמה דם הכליות מסננות בכל דקה. כל נפרון (יחידת סינון) מוסיף לסך הכול. הזיזו את הסליידר וראו מה קורה כשנפרונים נפגעים.</p>
+      <div class="nfgrid" aria-label="20 נפרונים">${Array.from({ length: 20 }, (_, i) => `<span class="nf ${i < n ? 'on' : 'off'}">${i < n ? '💧' : '✖'}</span>`).join('')}</div>
+      <div class="sim"><label>נפרונים שעובדים: <b>${n} מתוך 20</b></label><input type="range" id="gn" min="1" max="20" step="1" value="${n}"></div>
+      <div class="gfrbig"><div><b>${ml}</b><span>מ"ל דם מסוננים בדקה (GFR)</span></div><div><b>${pct}%</b><span>מהסינון התקין</span></div></div>
+      <div class="crit">${n >= 18 ? 'כמעט כל הנפרונים עובדים: כ-125 מ"ל בדקה, כ-180 ליטר ביום (רוב המים חוזרים לדם). הקריאטינין, תוצר פסולת מהשרירים, מסתנן החוצה ונשאר נמוך בדם.' : n >= 8 ? 'חלק מהנפרונים נפגעו. הנפרונים הבריאים מפצים, אבל פחות דם מסונן, והקריאטינין בדם מתחיל לעלות. לכן הוא מדד לתפקוד הכליות.' : 'רוב הנפרונים נפגעו: מעט דם מסונן, והקריאטינין והפסולת מצטברים בדם.'}</div>
+      <p class="small muted">הקשר לכליות: הסינון קורה בפקעית של כל נפרון. כל הכליות יחד כוללות כמיליון נפרונים בכל כליה (כאן מוצגים 20 להמחשה). בסימולציה הבאה נראה איך הערכים בדם משתנים.</p>
+      <button class="btn primary block" id="gx" style="margin-top:10px">המשך לסימולציה ←</button>`;
+    $('#gn', host).oninput = e => { n = +e.target.value; draw(); };
+    $('#gx', host).onclick = () => done(null);
+  }
+  draw();
+}
+
 function gfrSim(box, done) {
   let pct = 100;
   const host = el('<div class="card"></div>'); box.appendChild(host);
@@ -59,10 +77,10 @@ function gfrSim(box, done) {
     const gfr = pct, crea = +(1.0 * 100 / Math.max(5, gfr)).toFixed(1), urea = Math.round(30 * 100 / Math.max(5, gfr)), k = +(4.0 + Math.max(0, 30 - gfr) * 0.08).toFixed(1), hb = +(14 - Math.max(0, 60 - gfr) * 0.07).toFixed(1), hco = Math.round(25 - Math.max(0, 40 - gfr) * 0.2);
     const flag = (v, lo, hi) => v > hi ? 'hi' : v < lo ? 'lo' : '';
     host.innerHTML = `<p class="muted small" style="margin-top:0">הזיזו את הסליידר: כמה מיכולת הסינון נשארה? הערכים להמחשה (מודל מפושט, לאדם בריא ממוצע).</p>
-      <div class="sim"><div><label>קצב הסינון (GFR): <b>${gfr}%</b> מהתקין</label><input type="range" id="sg" min="5" max="100" step="5" value="${pct}"></div>
+      <div class="sim compact"><div><label>קצב הסינון (GFR): <b>${gfr}%</b> מהתקין</label><input type="range" id="sg" min="5" max="100" step="5" value="${pct}"></div>
       <div class="out"><div class="${flag(crea, 0, 1.2)}"><b>${crea}</b><span>קריאטינין mg/dL (תקין עד 1.2)</span></div><div class="${flag(urea, 0, 45)}"><b>${urea}</b><span>אוריאה mg/dL</span></div><div class="${flag(k, 3.5, 5.1)}"><b>${k}</b><span>אשלגן mmol/L</span></div></div>
       <div class="out"><div class="${flag(hb, 12, 18)}"><b>${hb}</b><span>המוגלובין g/dL</span></div><div class="${flag(hco, 22, 29)}"><b>${hco}</b><span>ביקרבונט mmol/L</span></div></div>
-      <p class="small"><b>שלב CKD לפי eGFR ${gfr}: ${ckdStage(gfr)}</b> (אם נמשך שלושה חודשים לפחות).</p><p class="small">${gfr >= 60 ? 'הקריאטינין עלול להישאר "תקין" גם כשהסינון כבר ירד, ולכן יש לנהוג בזהירות.' : gfr >= 30 ? 'הקריאטינין והאוריאה עולים, והכליה עדיין מפצה בחלק מהתפקודים.' : 'הסינון נמוך מאוד: מצטברים אשלגן ופסולת, נוצרת חמצת, ויורד ההמוגלובין (אנמיה כלייתית).'}</p></div>
+      <div class="crit"><div class="critl">שלב אי-ספיקה כרונית (CKD) לפי eGFR ${gfr}</div><b>${ckdStage(gfr)}</b><span class="small"> (אם נמשך שלושה חודשים לפחות)</span></div><div class="crit warn">${gfr >= 60 ? 'שימו לב: הקריאטינין עלול להישאר "תקין" גם כשהסינון כבר ירד, ולכן יש לנהוג בזהירות.' : gfr >= 30 ? 'הקריאטינין והאוריאה עולים, והכליה עדיין מפצה בחלק מהתפקודים.' : 'הסינון נמוך מאוד: מצטברים אשלגן ופסולת, נוצרת חמצת, ויורד ההמוגלובין (אנמיה כלייתית).'}</div></div>
       <button class="btn primary block" id="go" style="margin-top:12px">המשך לשאלות ←</button>`;
     $('#sg', host).oninput = e => { pct = +e.target.value; draw(); };
     $('#go', host).onclick = () => done(null);
@@ -82,6 +100,7 @@ registerGame({
   mount(root, ctx) {
     root.insertAdjacentHTML('afterbegin', say('הנפרונים הם צוות. כשחלק מהם נפגע, אפשר לראות את זה בדם. בואו נראה בדיוק איך.', 'think'));
     runStages(root, ctx, [
+      { title: 'מה זה GFR?', run: gfrIntro },
       { title: 'סימולציה', run: gfrSim },
       { title: 'שאלות', run: runQuizStage([
         Q('קריאטינין של מטופל עלה מ-1.0 ל-2.0 ללא שינוי במסת השריר. מה זה מעיד?', 'gfr', [OK('ירידה משמעותית בסינון, בערך כמחצית', 'הקריאטינין עולה ביחס הפוך לסינון, ולכן הכפלתו מעידה על ירידה גדולה.'), NO('עלייה בסינון, כי הכליה מפרישה יותר', 'הקריאטינין מסונן ולא מופרש ביתר.'), NO('אין שינוי בסינון, כי הערך עדיין נמוך מ-3', 'כל עלייה משמעותית מעידה על ירידה בסינון.'), NO('ירידה בייצור הקריאטינין בשרירים', 'מסת השריר לא השתנתה.')]),
