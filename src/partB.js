@@ -82,11 +82,20 @@ function keyFindQ(p) {
 
 /* מריץ סבב מטופלים: mode 1|2|3 */
 function runLabRounds(root, ctx, mode, types) {
-  const edge = mode === 2; let i = 0; const scores = types.map(() => null), pats = [];
+  const BKEY = 'nephrolab_b_' + (ctx.game ? ctx.game.id : 'x');
+  let sv = null; try { sv = JSON.parse(localStorage.getItem(BKEY) || 'null'); } catch (e) { }
+  const okSv = !IS_TEACHER && sv && sv.mode === mode && Array.isArray(sv.types) && sv.types.length === types.length && sv.types.every(t => NT[t]);
+  if (okSv) types = sv.types;
+  const edge = mode === 2; let i = 0; const scores = types.map((_, k) => okSv && sv.scores[k] != null ? sv.scores[k] : null), pats = okSv ? (sv.pats || []).slice() : [];
+  if (okSv) { const f = scores.findIndex(x => x == null); i = f < 0 ? 0 : f; }
+  const hadSaved = okSv && scores.some(x => x != null);
+  const saveB = () => { try { localStorage.setItem(BKEY, JSON.stringify({ mode, types, scores, pats: types.map((_, k) => pats[k] || null) })); } catch (e) { } };
   const sumScore = () => scores.reduce((a, b) => a + (b || 0), 0);
   const host = el('<div></div>'); root.appendChild(host);
+  if (hadSaved) root.insertAdjacentHTML('afterbegin', '<div class="explain small">✓ מסומנים המטופלים שכבר אבחנתם (נשמר במכשיר). אפשר להמשיך מהמטופל הבא, או ללחוץ "התחל מחדש".</div>');
   function patientRound() {
     if (i >= types.length) {
+      try { localStorage.removeItem(BKEY); } catch (e) { }
       const per = scores.filter(x => x != null && x >= .999).length, rk = diagRank(per, types.length); ctx.rank = rk;
       const extra = `<div class="card"><table class="lab"><thead><tr><th>מטופל</th><th>אבחנה</th><th>ניקוד</th></tr></thead><tbody>${types.map((t, k) => `<tr><td>${k + 1}</td><td>${NT[t].ic} ${NT[t].s}</td><td class="v">${Math.round(100 * (scores[k] || 0))}%</td></tr>`).join('')}</tbody></table><button class="btn block" id="sharebtn" style="margin-top:12px">📤 שליחת התוצאות למורה</button></div>`;
       ctx.finish(Math.round(100 * sumScore() / types.length), rankCard(rk, per, types.length) + extra);
@@ -107,7 +116,7 @@ function runLabRounds(root, ctx, mode, types) {
     const fb = el('<div></div>'); host.appendChild(fb);
     const finish = pts => {
       if (p.hinted) pts = Math.max(0, pts - .1);
-      if (scores[i] == null) scores[i] = pts;
+      if (scores[i] == null) { scores[i] = pts; saveB(); }
       const left = types.map((_, k) => k).filter(k => scores[k] == null), nxt = left.find(k => k > i), last = left.length === 0;
       const sm = el(`<div class="card" style="margin-top:12px"><div class="row sp"><b>${pts >= .999 ? 'מטופל מושלם! 🌟' : 'סיימתם את המטופל'}</b><span>${Math.round(pts * 100)}%</span></div>${pts >= .999 ? expertCard('great') : ''}<button class="btn primary block" id="nx" style="margin-top:10px">${last ? 'לסיכום 🏁' : 'המטופל הבא ←'}</button></div>`);
       fb.appendChild(sm); sm.scrollIntoView({ block: 'nearest', behavior: 'smooth' });

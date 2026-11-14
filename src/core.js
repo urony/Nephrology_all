@@ -232,6 +232,7 @@ function mountGame(id, root) {
   root.append(hdr, body);
   hdr.querySelector('[data-back]').onclick = () => location.hash = '#/' + g.part.toLowerCase();
   if (TGAME) hdr.querySelector('[data-back]').remove();
+  if (!IS_TEACHER) { const rb = el('<button class="btn small" style="margin-bottom:8px">🔁 התחל מחדש</button>'); hdr.appendChild(rb); rb.onclick = () => { try { localStorage.removeItem('nephrolab_seen_' + id); localStorage.removeItem('nephrolab_b_' + id); } catch (e) { } mountGame(id, root); window.scrollTo(0, 0); }; }
   if (IS_TEACHER && g.teacherNote) body.appendChild(el(`<div class="tnote"><b>הערה למורה:</b> ${g.teacherNote}</div>`));
   if (IS_TEACHER) { teacherGameView(g, body, makeCtx); return; }
   const start = comp => { body.innerHTML = ''; const ctx = makeCtx(g, body); if (comp) attachComp(ctx, g, hdr); g.mount(body, ctx); const gs = guideSay(g.id); if (gs && !body.querySelector('.say')) body.insertAdjacentHTML('afterbegin', gs); };
