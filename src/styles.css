@@ -431,3 +431,6 @@ details.tpart[open]>summary::after{transform:rotate(-90deg)}
 .crit.warn{background:color-mix(in srgb,#e8a020 14%,var(--surface));border-color:#e8a020;font-weight:700}
 .nfgrid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:8px 0}.nf{display:grid;place-items:center;height:34px;border-radius:8px;font-size:1.1rem}.nf.on{background:#dff1fb;border:1px solid #7ab9dd}.nf.off{background:#f3d8d8;border:1px solid #d99;color:#a33;opacity:.8}
 .gfrbig{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.gfrbig>div{background:var(--surface2);border:1px solid var(--line);border-radius:14px;text-align:center;padding:10px}.gfrbig b{display:block;font-size:1.6rem}.gfrbig span{font-size:.8rem;color:var(--muted)}
+
+/* תיקון: מאפיין hidden חייב להסתיר גם אלמנטים עם display מפורש (למשל מאגר השמות במצב ההקלדה) */
+[hidden]{display:none!important}
