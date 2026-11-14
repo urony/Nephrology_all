@@ -361,3 +361,19 @@ svg.chart{direction:ltr}
 .lg-type input{flex:1;min-width:0;font-size:1.05rem;padding:11px 12px}
 .lg-q{margin-bottom:6px;font-weight:700}
 .lg-mode{text-align:start;padding:12px 14px;margin-bottom:8px}
+/* מסע טיפת שתן */
+.pg-svg{width:100%;max-width:420px;display:block;margin:10px auto 0;border-radius:14px;border:1.5px solid var(--line);background:#fff}
+.pg-tube{fill:none;stroke:#cfd9e4;stroke-width:12;stroke-linecap:round}
+.pg-tube.wide{stroke-width:16}
+.pg-fill{fill:none;stroke-width:8;stroke-linecap:round}
+.pg-fill.wide{stroke-width:11}
+.pg-t{font-size:11px;fill:#5b6b7a;font-weight:700}
+.pg-t2{font-size:10px}
+.pg-node circle{fill:#fff;stroke:#33485c;stroke-width:2}
+.pg-node text{font-size:11px;font-weight:700;fill:#1b2a38;paint-order:stroke;stroke:#fff;stroke-width:3px}
+.pg-info{background:var(--blue-soft,#eaf3fb);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.pg-conc{display:flex;align-items:center;gap:8px;margin-top:6px}
+.pg-conc .bar{flex:1}
+.pg-opt{text-align:start}
+.pg-opt.no{opacity:.55}
+.pg-svg{direction:ltr;unicode-bidi:isolate}
