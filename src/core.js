@@ -234,7 +234,7 @@ function mountGame(id, root) {
   if (TGAME) hdr.querySelector('[data-back]').remove();
   if (IS_TEACHER && g.teacherNote) body.appendChild(el(`<div class="tnote"><b>הערה למורה:</b> ${g.teacherNote}</div>`));
   if (IS_TEACHER) { teacherGameView(g, body, makeCtx); return; }
-  const start = comp => { body.innerHTML = ''; const ctx = makeCtx(g, body); if (comp) attachComp(ctx, g, hdr); g.mount(body, ctx); const gs = guideSay(g.id); if (gs) body.insertAdjacentHTML('afterbegin', gs); };
+  const start = comp => { body.innerHTML = ''; const ctx = makeCtx(g, body); if (comp) attachComp(ctx, g, hdr); g.mount(body, ctx); const gs = guideSay(g.id); if (gs && !body.querySelector('.say')) body.insertAdjacentHTML('afterbegin', gs); };
   if (g.part === 'B' || g.part === 'C') {
     const ch = el(`<div class="card center"><h3 style="margin-top:0">איך תרצו לשחק?</h3><div class="row"><button class="btn primary grow" data-m="0">▶ משחק רגיל</button><button class="btn grow" data-m="1">⏱️ מצב תחרות</button></div>${compRules(g)}</div>`);
     body.appendChild(ch); ch.onclick = e => { const b = e.target.closest('[data-m]'); if (b) start(b.dataset.m === '1'); };

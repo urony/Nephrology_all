@@ -7,7 +7,7 @@ function orderGame(root, { steps, hint, tag, onDone }) {
   let placed = [], first = null, checked = false;
   const host = el('<div class="card"></div>'); root.appendChild(host);
   function draw() {
-    host.innerHTML = `<p class="muted small">${hint || 'לחצו על השלבים לפי הסדר הנכון. לחיצה על שלב שהוצב מחזירה אותו.'}</p>
+    host.innerHTML = `<p class="instr">${hint || 'לחצו על השלבים לפי הסדר הנכון. לחיצה על שלב שהוצב מחזירה אותו.'}</p>
       <div class="col" id="slots">${Array.from({ length: N }, (_, p) => {
         const idx = placed[p]; const cls = idx == null ? '' : 'fill' + (checked ? (idx === p ? ' ok' : ' no') : '');
         return `<div class="slot ${cls}" data-p="${p}"><span class="n">${p + 1}</span><span>${idx == null ? '<span class="muted">…</span>' : steps[idx]}</span></div>`;
@@ -61,7 +61,7 @@ function matchGame(root, { pairs, tag, onDone, leftTitle = 'תסמין', rightTi
   let sel = null, done = new Set(), tries = 0, wrong = 0;
   const host = el('<div class="card"></div>'); root.appendChild(host);
   function draw(flash) {
-    host.innerHTML = `<p class="muted small">בחרו ${leftTitle} ואז את ה${rightTitle} שמתאים לו.</p><div class="row" style="align-items:flex-start;flex-wrap:nowrap">
+    host.innerHTML = `<p class="instr">בחרו ${leftTitle} ואז את ה${rightTitle} שמתאים לו.</p><div class="row" style="align-items:flex-start;flex-wrap:nowrap">
       <div class="col grow" style="flex:1"><b class="small muted">${leftTitle}</b>${L.map(i => `<button class="sort-item ${sel === i ? 'pick' : ''} ${done.has(i) ? 'used' : ''}" data-l="${i}" ${done.has(i) ? 'disabled' : ''}>${pairs[i][0]}</button>`).join('')}</div>
       <div class="col grow" style="flex:1"><b class="small muted">${rightTitle}</b>${R.map(i => `<button class="sort-item ${done.has(i) ? 'used' : ''} ${IS_TEACHER && sel === i ? 'pick' : ''}" data-r="${i}" ${done.has(i) ? 'disabled' : ''}>${pairs[i][1]}</button>`).join('')}</div></div><div id="fb">${flash || ''}</div>`;
     if (IS_TEACHER) host.insertAdjacentHTML('beforeend', `<div class="tnote"><b>פתרון:</b><ul style="margin:4px 0 0;padding-inline-start:18px">${pairs.map(p => `<li>${p[0]} ← ${p[1]}</li>`).join('')}</ul></div>`);
@@ -112,7 +112,7 @@ function binGame(root, { items, buckets, tag, title, onDone }) {
   function chip(it, cls = '') { return `<button class="chipx ${cls}" data-c="${it._i}">${it.e || ''} ${it.t}${IS_TEACHER ? ` <small>(← ${buckets[it.b]})</small>` : ''}</button>`; }
   function draw(flash, shakeId) {
     const left = list.filter(x => placed[x._i] == null);
-    host.innerHTML = `<p class="muted small">${title || 'בחרו פריט ואז לחצו על התיבה שמתאימה לו.'}</p>
+    host.innerHTML = `<p class="instr">${title || 'בחרו פריט ואז לחצו על התיבה שמתאימה לו.'}</p>
       <div class="chip-pool">${left.map(x => chip(x, (sel === x._i ? 'pick ' : '') + (shakeId === x._i ? 'shake' : ''))).join('') || '<span class="muted">כל המוצרים מוינו! 🎉</span>'}</div>
       <div class="bin-row">${buckets.map((b, k) => `<div class="bin" data-b="${k}"><h4>${b}</h4><div class="chip-pool">${list.filter(x => placed[x._i] === k).map(x => chip(x, 'placed')).join('')}</div></div>`).join('')}</div>
       <div id="fb">${flash || ''}</div>`;
@@ -140,11 +140,15 @@ function runStages(root, ctx, stages, o = {}) {
   const scores = []; let i = 0;
   const host = el('<div></div>'); root.appendChild(host);
   function next() {
-    if (i >= stages.length) { ctx.finish(Math.round(scores.reduce((a, b) => a + b, 0) / Math.max(1, scores.length)), o.after || ''); return; }
+    if (i >= stages.length) { ctx.finish(Math.round(scores.filter(x => x != null).reduce((a, b) => a + b, 0) / Math.max(1, scores.filter(x => x != null).length)), o.after || ''); return; }
     const k = i++; host.innerHTML = '';
-    if (stages.length > 1) host.appendChild(el(`<div class="row sp small muted" style="margin-bottom:8px"><span>${(stages[k].title || 'שלב') } · ${k + 1} מתוך ${stages.length}</span><span></span></div>`));
+    if (stages.length > 1) {
+      const bar = el(`<div class="row sp stagebar"><span class="small muted">${(stages[k].title || 'שלב')} · ${k + 1} מתוך ${stages.length}</span>${k > 0 ? '<button class="btn small" data-prev>→ לשלב הקודם</button>' : '<span></span>'}</div>`);
+      host.appendChild(bar);
+      const pb = bar.querySelector('[data-prev]'); if (pb) pb.onclick = () => { i = k - 1; scores.length = Math.min(scores.length, k - 1); next(); window.scrollTo(0, 0); };
+    }
     const box = el('<div></div>'); host.appendChild(box);
-    stages[k].run(box, p => { if (p != null) scores.push(p); next(); window.scrollTo(0, 0); });
+    stages[k].run(box, p => { scores[k] = p; next(); window.scrollTo(0, 0); });
   }
   next();
 }
@@ -154,6 +158,7 @@ const runQuizStage = (items, o) => (box, done) => runQuiz(box, { finish: (p, ext
    cols: כותרות עמודות. rows: [{label, cells:[{opts:[...], ok:i}], why}]. לחיצה על תא מחליפה בין האפשרויות; "בדיקה" חושפת. */
 function predictTable(root, { cols, rows, tag, title, onDone }) {
   const host = el('<div class="card" style="overflow-x:auto;padding:10px"></div>'); root.appendChild(host);
+  rows = rows.map(r => ({ ...r, cells: r.cells.map(c => { const ix = shuffle(c.opts.map((_, i) => i)); return { ...c, opts: ix.map(i => c.opts[i]), ok: ix.indexOf(c.ok) }; }) }));
   const sel = rows.map(r => r.cells.map(c => IS_TEACHER ? c.ok : -1)); let checked = false;
   function cell(ri, ci) {
     const c = rows[ri].cells[ci], v = sel[ri][ci];
@@ -164,7 +169,7 @@ function predictTable(root, { cols, rows, tag, title, onDone }) {
     return `<button type="button" class="${cls}" data-r="${ri}" data-c="${ci}" ${checked ? 'disabled' : ''}>${shown}${checked && v !== c.ok ? `<small>נכון: ${c.opts[c.ok]}</small>` : ''}</button>`;
   }
   function draw() {
-    host.innerHTML = `<p class="small muted" style="margin-top:0">${title || 'לחצו על כל תא כדי לבחור תשובה, ואז לחצו "בדיקה".'}</p>
+    host.innerHTML = `<p class="instr" style="margin-top:0">${title || 'לחצו על כל תא כדי לבחור תשובה. כל לחיצה מחליפה לאפשרות הבאה, אז אפשר ללחוץ שוב עד שמגיעים לתשובה שלכם. כשכל התאים מלאים, לחצו "בדיקה".'}</p>
       <table class="cmp"><thead><tr><th></th>${cols.map(c => `<th class="small">${c}</th>`).join('')}</tr></thead><tbody>${rows.map((r, ri) => `<tr><th class="small">${r.label}</th>${r.cells.map((_, ci) => `<td>${cell(ri, ci)}</td>`).join('')}</tr>`).join('')}</tbody></table>
       <div id="pfb"></div><button class="btn primary block" id="pchk" style="margin-top:12px" ${checked ? 'hidden' : ''}>בדיקה ✔</button>`;
   }

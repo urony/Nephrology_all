@@ -346,3 +346,7 @@ svg.chart{direction:ltr}
 .lg-row{display:flex;gap:10px;align-items:flex-start;padding:6px 8px;border-radius:10px;background:var(--good-soft)}
 .lg-num{flex:0 0 24px;height:24px;border-radius:50%;background:var(--good);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.8rem}
 @media (prefers-reduced-motion:reduce){.lg-dot{animation:none}}
+/* הוראות בולטות + סרגל שלבים */
+.instr{color:var(--ink,#1b2a38);font-weight:700;font-size:1rem;background:#fff8e1;border-inline-start:5px solid var(--gold,#f2b01e);padding:9px 12px;border-radius:10px;margin:0 0 12px}
+.stagebar{margin-bottom:8px;align-items:center}
+.fx{font-weight:800}
