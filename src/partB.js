@@ -25,7 +25,7 @@ const INFO = {
   di: { key: ['NA', 'USG', 'CREA'], pts: ['נתרן גבוה בדם: איבוד מים בלי איבוד מלח.', 'שתן מדולל מאוד בנפח גדול (משקל סגולי נמוך מאוד): הצינור המאסף לא מקבל אות ADH לספוג מים.', 'קריאטינין תקין: הכליה עצמה בריאה, והבעיה בהורמון ADH.'] },
 };
 const NEXT_OK = { prerenal: ['urine'], renal_aki: ['urine', 'us'], postrenal: ['us'], ckd: ['us', 'bone'], diabetic: ['sugar', 'urine'], cystitis: ['urine'], pyelo: ['infl', 'urine'], stone: ['us', 'urine'], di: ['urine'] };
-const NEXT_OPTS = { urine: 'בדיקת שתן: סטיק, משקל סגולי ונפח שתן', us: 'אולטרסאונד כליות ודרכי השתן', bone: 'המוגלובין, סידן, זרחן ו-PTH', infl: 'ספירת דם לבנה ו-CRP', sugar: 'גלוקוז בדם וחלבון בשתן' };
+const NEXT_OPTS = { urine: 'בדיקת שתן: סטיק, משקל סגולי ונפח שתן', us: 'אולטרסאונד כליות ודרכי השתן', bone: 'המוגלובין, סידן, זרחן ו-PTH', infl: 'ספירת דם לבנה ו-CRP (סמני דלקת)', sugar: 'גלוקוז בדם ויחס חלבון בשתן' };
 const NEXT_WHY = {
   urine: 'מבדילה בין שתן מרוכז (פרה-רנלי) ללא מרוכז, וחושפת דם, חלבון, גלוקוז ודלקת.',
   us: 'מראה חסימה והרחבת אגנים, אבנים וגודל הכליות (מצומקות בכרונית).',
@@ -58,7 +58,8 @@ function feedbackDxB(p, chosen) {
   const right = chosen === p.type, info = INFO[p.type];
   let h = `<div class="explain ${right ? 'good' : 'bad'}">${right ? '✅ נכון! ' : `🤔 לא בדיוק. זו ${NT[p.type].n}. `}`;
   if (!right) h += `<br><b>${NT[chosen].s}</b> מאופיינת ב: ${KEYF[chosen].t}.`;
-  h += `<br><b>מה מצביע על כך כאן:</b></div><div class="card flat" style="padding:10px;margin-top:8px">${(resetLabNote(), labRows(info.key, p.vals, p.sex, info.key))}<ul style="padding-inline-start:20px;margin:10px 0 0">${info.pts.map(x => `<li>${x}</li>`).join('')}</ul></div>`;
+  const AKI_MAP = { prerenal: 'pre', renal_aki: 'ren', postrenal: 'post' };
+  h += `<br><b>מה מצביע על כך כאן:</b></div>${AKI_MAP[p.type] ? `<div class="card flat" style="margin-top:8px;padding:8px"><div class="small muted" style="text-align:center">איפה הבעיה?</div>${akiSvg(AKI_MAP[p.type])}</div>` : ''}<div class="card flat" style="padding:10px;margin-top:8px">${(resetLabNote(), labRows(info.key, p.vals, p.sex, info.key))}<ul style="padding-inline-start:20px;margin:10px 0 0">${info.pts.map(x => `<li>${x}</li>`).join('')}</ul></div>`;
   return h;
 }
 function keyFindQ(p) {
@@ -110,7 +111,7 @@ function runLabRounds(root, ctx, mode, types) {
       labs.innerHTML = allPanels(p);
       mcq(q, { q: 'שלב 1: לפי הקריאטינין וה-eGFR, האם הסינון בכליות פגוע?', tag: 'gfr', options: [
         { t: 'כן, הסינון ירוד (eGFR מתחת ל-60)', ok: p.vals.EGFR < 60, why: `eGFR ${p.vals.EGFR} (תקין מעל 90). הקריאטינין עולה כשהסינון יורד.` },
-        { t: 'לא, הסינון תקין או כמעט תקין (eGFR 60 ומעלה)', ok: p.vals.EGFR >= 60, why: `eGFR ${p.vals.EGFR}.` }],
+        { t: 'לא, הסינון תקין (eGFR 60 ומעלה)', ok: p.vals.EGFR >= 60, why: `eGFR ${p.vals.EGFR}.` }],
         onDone: () => { const box = el('<div style="margin-top:14px"></div>'); q.appendChild(box); dxStep(box, 'שלב 2: מהי האבחנה?', .7, .3, 0); } });
     } else if (mode === 2) {
       labs.innerHTML = allPanels(p);

@@ -48,12 +48,17 @@ const labQ = (k, cols) => `<button class="qm" type="button" aria-label="הסבר
 const labHelpRow = (k, cols) => `<tr class="hrow" hidden><td colspan="${cols}">${LAB_HELP[k] || ''}</td></tr>`;
 function labRange(k, sex) { const r = LAB[k].r; return Array.isArray(r) ? r : r[sex]; }
 function labFlag(k, v, sex) { const [lo, hi] = labRange(k, sex); return v < lo ? 'L' : v > hi ? 'H' : ''; }
+function labGauge(k, v, sex) {
+  const [lo, hi] = labRange(k, sex), sp = hi - lo, mn = lo === 0 ? 0 : lo - sp * 0.9, mx = hi + sp * 0.9 + (lo === 0 ? sp * 0.5 : 0), W = mx - mn;
+  const pc = x => Math.max(2, Math.min(98, 100 * (x - mn) / W)), f = labFlag(k, v, sex);
+  return '<div class="lg" style="direction:ltr;position:relative;height:8px;border-radius:4px;background:#f3cfcf;margin-top:4px;min-width:70px" aria-hidden="true"><i style="position:absolute;top:0;bottom:0;left:' + (100 * (lo - mn) / W) + '%;width:' + (100 * sp / W) + '%;background:#bfe5c9"></i><b style="position:absolute;top:-3px;width:12px;height:14px;margin-left:-6px;border-radius:6px;border:2px solid #fff;box-sizing:border-box;left:' + pc(v) + '%;background:' + (f ? '#d9534f' : '#2f8f55') + '"></b></div>';
+}
 function labFmt(k, v) { return Number(v).toFixed(LAB[k].d); }
 function labRows(keys, vals, sex, hl = []) {
   const bk = (k, sx) => BOOK_RANGE[k] && BOOK_RANGE[k][sx] ? `<br><span class="small" style="color:var(--teal)">בבחינה: עד ${BOOK_RANGE[k][sx][1]}</span>` : '';
   return labNote() + `<table class="lab"><thead><tr><th>בדיקה</th><th>תוצאה</th><th>טווח</th></tr></thead><tbody>${keys.map(k => {
     if (vals[k] == null) return ''; const f = labFlag(k, vals[k], sex), [lo, hi] = labRange(k, sex);
-    return `<tr class="${hl.includes(k) ? 'hl' : ''} ${f ? 'abn' + f : ''}"><td>${LAB[k].n} ${labQ(k)}</td><td class="v ${f}">${labFmt(k, vals[k])} <span class="muted small">${LAB[k].u}</span></td><td class="r">(${lo}–${hi})${bk(k, sex)}</td></tr>${labHelpRow(k, 3)}`;
+    return `<tr class="${hl.includes(k) ? 'hl' : ''} ${f ? 'abn' + f : ''}"><td>${LAB[k].n} ${labQ(k)}</td><td class="v ${f}">${labFmt(k, vals[k])} <span class="muted small">${LAB[k].u}</span></td><td class="r">(${lo}–${hi})${bk(k, sex)}${labGauge(k, vals[k], sex)}</td></tr>${labHelpRow(k, 3)}`;
   }).join('')}</tbody></table>`;
 }
 
