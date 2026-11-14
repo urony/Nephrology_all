@@ -1,7 +1,9 @@
 # בונה את האתר ומפרסם ל-GitHub Pages: דף המורה בכתובת הראשית, וקבצי התלמיד תחת /s/
 name: Build and deploy
-# פרסום אוטומטי כבוי בכוונה: הכלי מפורסם רק באישור מפורש של אורי (להחזיר push כדי לפרסם)
+# פורסם באישור אורי: כל push ל-main בונה ומפרסם מחדש. אפשר גם להפעיל ידנית.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read

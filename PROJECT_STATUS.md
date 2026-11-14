@@ -181,3 +181,6 @@ node serve.mjs     # שרת מקומי על http://localhost:5173
 - תיקון: במצב "הפוך: כתבו" ב"גרור את התווית" רשימת השמות כבר לא מוצגת (`[hidden]` נדרס ב-CSS).
 
 - משמרת לילה (c_s4) תוקנה: חמשת המטופלים c6-c10 (אלה שלא במשמרת ערב), בלי תלונה מרכזית. מרתון נשאר כל 10.
+
+## סטטוס פרסום (עדכון)
+אורי אישר פרסום (14.11.2026). ה-workflow רץ על כל push ל-main. נדרש ב-GitHub: Settings > Pages > Source = GitHub Actions. דף מורה: https://urony.github.io/Nephrology_all/ ; קבצי תלמיד: /s/parts/game-<id>.html
