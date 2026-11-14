@@ -395,3 +395,5 @@ svg.chart{direction:ltr}
 .rs-split>div{flex:1;border:2px solid var(--line);border-radius:12px;padding:7px 5px;text-align:center;display:flex;flex-direction:column;gap:2px;font-size:.9rem;background:#fff}
 .rs-split.on>div{border-color:#8059bd;background:#f1ecfa}
 .rs-split.off{opacity:.5}
+
+.dia-svg{width:100%;max-width:420px;display:block;margin:6px auto 10px;direction:ltr}
