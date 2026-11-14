@@ -99,7 +99,7 @@ function adhSim(box, done) {
     const osm = 290 - 5 * h, adh = clamp((osm - 285) / 15, 0, 1), aqp = Math.round(adh * 100);
     const conc = Math.round(100 + 1100 * adh), vol = (0.6 + 6 * (1 - adh)).toFixed(1);
     host.innerHTML = `<p class="muted small" style="margin-top:0">הזיזו את הסליידר ממצב של התייבשות עד שתייה מרובה. הערכים להמחשה, והאוסמולריות התקינה בפלזמה היא כ-290 mOsm/L.</p>
-      <div class="sim"><div><label>מצב הנוזלים בגוף: <b>${h < -1 ? 'התייבשות' : h > 1 ? 'שתייה מרובה' : 'מאוזן'}</b></label><input type="range" id="sh" min="-3" max="3" step="1" value="${h}"><div class="row sp small muted"><span>התייבשות</span><span>שתייה מרובה</span></div></div>
+      ${adhSvg(adh, osm, +vol, conc)}<div class="sim"><div><label>מצב הנוזלים בגוף: <b>${h < -1 ? 'התייבשות' : h > 1 ? 'שתייה מרובה' : 'מאוזן'}</b></label><input type="range" id="sh" min="-3" max="3" step="1" value="${h}"><div class="row sp small muted"><span>התייבשות</span><span>שתייה מרובה</span></div></div>
       <div class="out"><div class="${osm > 295 ? 'hi' : osm < 285 ? 'lo' : ''}"><b>${osm}</b><span>אוסמולריות הפלזמה</span></div><div class="${adh > .6 ? 'hi' : ''}"><b>${adh > .66 ? 'גבוה' : adh > .25 ? 'בינוני' : 'נמוך'}</b><span>הפרשת ADH</span></div><div><b>${aqp}%</b><span>תעלות מים (אקוואפורין 2) בצינור המאסף</span></div></div>
       <div class="out"><div><b>${conc}</b><span>ריכוז השתן (mOsm/L, להמחשה)</span></div><div><b>${vol} ל׳</b><span>נפח שתן ביממה (להמחשה)</span></div></div>
       <p class="small">${adh > .66 ? 'אוסמולריות גבוהה: האוסמורצפטורים בהיפותלמוס מזהים, ADH עולה, ותעלות המים נפתחות. מים חוזרים לדם, והשתן מרוכז ומועט.' : adh < .25 ? 'אוסמולריות נמוכה: ADH נמוך, הצינור המאסף אטום כמעט למים, והשתן דליל ורב.' : 'מצב מאוזן: ADH ברמה בינונית, ושתן בריכוז ובנפח רגילים.'}</p></div>
@@ -144,6 +144,7 @@ registerGame({
   mount(root, ctx) {
     root.insertAdjacentHTML('afterbegin', say('אני רנין, השליח של הכליה. כשהלחץ יורד אני יוצא לדרך, ואחרי הרצף כולו הלחץ חוזר לעלות.', 'wink', 'guide_renin'));
     runStages(root, ctx, [
+      { title: 'הרצף בפעולה', run: raasSim },
       { title: 'סדרו את הרצף', run: (box, done) => orderGame(box, { tag: 'raas', steps: ['ירידה בלחץ הדם או בנפח הדם', 'המנגנון הג׳וקסטגלומרולרי משחרר רנין', 'רנין חותך אנגיוטנסינוגן והופך אותו לאנגיוטנסין I', 'האנזים ACE (בעיקר בריאות) הופך אותו לאנגיוטנסין II', 'אנגיוטנסין II מכווץ כלי דם ומגרה אלדוסטרון', 'אלדוסטרון: ספיגת נתרן ומים והפרשת אשלגן', 'נפח הדם ולחץ הדם עולים'], onDone: done }) },
       { title: 'מי השחקנים?', run: (box, done) => matchGame(box, { tag: 'raas', leftTitle: 'שחקן', rightTitle: 'תפקיד', pairs: [
         ['רנין', 'אנזים מהתאים הג׳וקסטגלומרולריים שחותך אנגיוטנסינוגן'], ['אנגיוטנסינוגן', 'חלבון שמיוצר בכבד ומופרש לדם'], ['ACE', 'אנזים שהופך אנגיוטנסין I ל-II, בעיקר בנימי הריאות'], ['אנגיוטנסין II', 'הצורה הפעילה: מכווץ כלי דם ומגרה אלדוסטרון'], ['אלדוסטרון', 'הורמון מקליפת יותרת הכליה שפועל בצינורית המרוחקת ובמאספת'],
